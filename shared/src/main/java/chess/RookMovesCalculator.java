@@ -40,7 +40,7 @@ public class RookMovesCalculator implements PieceMovesCalculator {
         ChessPosition downRow = new ChessPosition(myRow - 1, myCol);
         boolean downBound = false;
         ChessPiece downPiece = null;
-        if (downRow.getRow() + 1 >= 0) {
+        if (downRow.getRow() + 1 > 0) {
             downBound = true;
             downPiece = board.getPiece(downRow);
         }
