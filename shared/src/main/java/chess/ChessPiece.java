@@ -95,7 +95,6 @@ public class ChessPiece {
             case PAWN:
                 PawnMovesCalculator PawnMoves = new PawnMovesCalculator();
                 return PawnMoves.pieceMoves(board, myPosition);
-//          I should probably replace the default with some error messaging
             default: return null;
         }
     }
