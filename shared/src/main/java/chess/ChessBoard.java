@@ -39,6 +39,14 @@ public class ChessBoard {
         return BoardGrid[position.getRow()][position.getColumn()];
     }
 
+    public void setPiece(ChessPosition position, ChessPiece piece) {
+        BoardGrid[position.getRow()][position.getColumn()] = piece;
+    }
+
+    public void clearPiece(ChessPosition position) {
+        BoardGrid[position.getRow()][position.getColumn()] = null;
+    }
+
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
@@ -55,23 +63,11 @@ public class ChessBoard {
             }
         }
 
-//      Adding White non-pawn pieces to the board
+//      Adding pieces to the board
         for(int i = 1; i < 9; i++) {
             addPiece(new ChessPosition(1, i), new ChessPiece(ChessGame.TeamColor.WHITE, pieceOrder[i - 1]));
-        }
-
-//      Adding White Pawns to the board
-        for(int i = 1; i < 9; i++) {
             addPiece(new ChessPosition(2, i), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
-        }
-
-//      Adding Black Pawns to the board
-        for(int i = 1; i < 9; i++) {
             addPiece(new ChessPosition(7, i), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
-        }
-
-//      Adding Black non-pawn pieces to the board
-        for(int i = 1; i < 9; i++) {
             addPiece(new ChessPosition(8, i), new ChessPiece(ChessGame.TeamColor.BLACK, pieceOrder[i - 1]));
         }
     }

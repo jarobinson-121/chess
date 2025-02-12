@@ -75,7 +75,6 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-//        Is a switch case the right thing to use here? If so, does that have issues with stringify? And what does it call from calcs?
         switch (type) {
             case KING:
                 KingMovesCalculator KingMoves = new KingMovesCalculator();
