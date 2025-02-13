@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -215,20 +214,34 @@ public class ChessGame {
         }
     }
 
+    public ChessBoard makeTempBoard() {
+        ChessBoard copy = new ChessBoard();
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                ChessPiece piece = gameBoard.getPiece(new ChessPosition(i + 1, j + 1));
+                if(piece != null) {
+                    copy.addPiece(new ChessPosition(i + 1, j + 1), piece);
+                }
+            }
+        }
+        return copy;
+    }
+
     public void makeTestMove(ChessMove move) throws InvalidMoveException {
+        ChessBoard testBoard = makeTempBoard();
         ChessPiece.PieceType promo = move.getPromotionPiece();
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
-        ChessPiece piece = gameBoard.getPiece(start);
+        ChessPiece piece = testBoard.getPiece(start);
 
         if(promo == null) {
-            gameBoard.setPiece(end, piece);
+            testBoard.setPiece(end, piece);
         }
         else {
-            gameBoard.setPiece(end, new ChessPiece(teamTurn, promo));
+            testBoard.setPiece(end, new ChessPiece(teamTurn, promo));
         }
 
-        gameBoard.clearPiece(start);
+        testBoard.clearPiece(start);
     }
 
     public ChessPosition findKingPos(TeamColor teamColor) {
