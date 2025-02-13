@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -54,19 +55,23 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        ChessPiece piece = gameBoard.getPiece(startPosition);
-        Collection<ChessMove> moves = piece.pieceMoves(gameBoard, startPosition);
-        Iterator<ChessMove> iterator = moves.iterator();
+        ChessBoard board = boardChecker();
+        ChessPiece piece = board.getPiece(startPosition);
+        if(piece != null) {
+            Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
+            Iterator<ChessMove> iterator = moves.iterator();
 
-        while(iterator.hasNext()) {
-            ChessMove currMove = iterator.next();
+            while(iterator.hasNext()) {
+                ChessMove currMove = iterator.next();
 
-            if(!testMoves(currMove)) {
-                iterator.remove();
+                if(!testMoves(currMove)) {
+                    iterator.remove();
+                }
             }
+            // need to filter to check if any of the moves would put the king in check
+            return moves;
         }
-        // need to filter to check if any of the moves would put the king in check
-        return moves;
+        return null;
     }
 
     /**
@@ -76,13 +81,14 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+
         ChessPiece.PieceType promo = move.getPromotionPiece();
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = gameBoard.getPiece(start);
         Collection<ChessMove> valMoves = validMoves(start);
 
-        if(valMoves.contains(move)) {
+        if(gameBoard.getPiece(start) != null && valMoves.contains(move) && piece.getTeamColor() == teamTurn) {
             if(promo == null) {
                 gameBoard.setPiece(end, piece);
             }
@@ -111,20 +117,13 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition myKing = findKingPos(teamColor);
-        ChessBoard whichBoard;
-
-        if(testBoard != null) {
-            whichBoard = testBoard;
-        }
-        else {
-            whichBoard = gameBoard;
-        }
+        ChessBoard board = boardChecker();
 
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
-                ChessPiece piece = whichBoard.getPiece(new ChessPosition(i + 1, j + 1));
+                ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
                 if(piece != null && piece.getTeamColor() != teamColor) {
-                    Collection<ChessMove> currPieceMoves = piece.pieceMoves(whichBoard, new ChessPosition(i + 1, j + 1));
+                    Collection<ChessMove> currPieceMoves = piece.pieceMoves(board, new ChessPosition(i + 1, j + 1));
                     Iterator<ChessMove> iterator = currPieceMoves.iterator();
                     while(iterator.hasNext()) {
                         ChessMove currMove = iterator.next();
@@ -145,18 +144,12 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        ChessBoard whichBoard;
+        ChessBoard board = boardChecker();
 
-        if(testBoard != null) {
-            whichBoard = testBoard;
-        }
-        else {
-            whichBoard = gameBoard;
-        }
         if(isInCheck(teamColor)) {
             for(int i = 0; i < 8; i++) {
                 for(int j = 0; j < 8; j++) {
-                    ChessPiece piece = whichBoard.getPiece(new ChessPosition(i + 1, j + 1));
+                    ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
                     if(piece != null && piece.getTeamColor() == teamColor) {
                         if(!validMoves(new ChessPosition(i + 1, j + 1)).isEmpty()) {
                             return false;
@@ -177,10 +170,12 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        ChessBoard board = boardChecker();
+
         if(!isInCheck(teamColor)) {
             for(int i = 0; i < 8; i++) {
                 for(int j = 0; j < 8; j++) {
-                    ChessPiece piece = gameBoard.getPiece(new ChessPosition(i + 1, j + 1));
+                    ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
                     if(piece != null && piece.getTeamColor() == teamColor) {
                         if(!validMoves(new ChessPosition(i + 1, j + 1)).isEmpty()) {
                             return false;
@@ -213,8 +208,6 @@ public class ChessGame {
 
     public boolean testMoves(ChessMove move) {
         testBoard = makeTempBoard();
-        ChessPiece mover = testBoard.getPiece(move.getStartPosition());
-        ChessPiece endPiece = testBoard.getPiece(move.getEndPosition());
 
         try {
             makeTestMove(move);
@@ -263,6 +256,7 @@ public class ChessGame {
     }
 
     public ChessPosition findKingPos(TeamColor teamColor) {
+
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
                 ChessPiece piece = gameBoard.getPiece(new ChessPosition(i + 1, j + 1));
@@ -272,5 +266,14 @@ public class ChessGame {
             }
         }
         throw new RuntimeException("King not found");
+    }
+
+    public ChessBoard boardChecker() {
+        if(testBoard != null) {
+            return testBoard;
+        }
+        else {
+            return gameBoard;
+        }
     }
 }
