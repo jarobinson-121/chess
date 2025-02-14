@@ -214,9 +214,11 @@ public class ChessGame {
     public boolean testMoves(ChessMove move) {
         testBoard = makeTempBoard();
 
+        ChessPiece piece = testBoard.getPiece(move.getStartPosition());
+
         try {
             makeTestMove(move);
-            if(isInCheck(teamTurn)) {
+            if(isInCheck(piece.getTeamColor())) {
                 testBoard = null;
                 return false;
             } else {
