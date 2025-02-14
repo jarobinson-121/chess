@@ -55,7 +55,7 @@ public class KingMovesCalculator implements PieceMovesCalculator {
         newPosition = new ChessPosition(myRow - 1, myColumn + 1);
         if(newPosition.getRow() >= 0 && newPosition.getColumn() < 8) {
             ChessPiece newPiece = board.getPiece(newPosition);
-            if(newPiece == null) {
+            if(newPiece == null || newPiece.getTeamColor() != king.getTeamColor()) {
                 moves.add(new ChessMove(myPosition, newPosition, null));
             }
         }

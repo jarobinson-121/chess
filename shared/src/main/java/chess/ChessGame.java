@@ -63,6 +63,7 @@ public class ChessGame {
 
             while(iterator.hasNext()) {
                 ChessMove currMove = iterator.next();
+                System.out.println(currMove.toString());
 
                 if(!testMoves(currMove)) {
                     iterator.remove();
@@ -116,8 +117,12 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        ChessPosition myKing = findKingPos(teamColor);
         ChessBoard board = boardChecker();
+
+        ChessPosition myKing = findKingPos(teamColor);
+        if(myKing == null) {
+            return true;
+        }
 
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
@@ -256,16 +261,17 @@ public class ChessGame {
     }
 
     public ChessPosition findKingPos(TeamColor teamColor) {
+        ChessBoard board = boardChecker();
 
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
-                ChessPiece piece = gameBoard.getPiece(new ChessPosition(i + 1, j + 1));
+                ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
                 if(piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
                     return new ChessPosition(i + 1, j + 1);
                 }
             }
         }
-        throw new RuntimeException("King not found");
+        return null;
     }
 
     public ChessBoard boardChecker() {
