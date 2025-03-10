@@ -4,9 +4,8 @@ import model.UserData;
 
 import java.util.HashMap;
 
-public class UserDataAccess implements UserDAO {
+public class MemoryUserDAO implements UserDAO {
 
-    private int nextId = 1;
     final private HashMap<String, UserData> users = new HashMap<>();
 
 //    AuthData auth = new AuthData(generateToken(), username);
