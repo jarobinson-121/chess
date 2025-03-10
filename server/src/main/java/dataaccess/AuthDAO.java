@@ -4,10 +4,10 @@ import model.AuthData;
 
 public interface AuthDAO {
 
-    AuthData createAuth(AuthData authData);
+    AuthData createAuth(String username);
 
     AuthData getAuth(String token);
 
-    void deleteAuth(AuthData authData);
+    void deleteAuth(String username);
 
 }
