@@ -1,3 +1,4 @@
+import Service.LoginService;
 import Service.RegisterService;
 import chess.*;
 import dataaccess.*;
@@ -12,8 +13,9 @@ public class Main {
 //        GameDAO gameDAO = new MemoryGameDAO();
 
         var registerService = new RegisterService(authDAO, userDAO);
+        var loginService = new LoginService(authDAO, userDAO);
 
-        Server server = new Server(userDAO, authDAO, registerService);
+        Server server = new Server(userDAO, authDAO, registerService, loginService);
 
         server.run(8080);
 
