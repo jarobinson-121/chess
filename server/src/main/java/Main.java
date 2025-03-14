@@ -1,4 +1,5 @@
 import Service.LoginService;
+import Service.LogoutService;
 import Service.RegisterService;
 import chess.*;
 import dataaccess.*;
@@ -14,8 +15,9 @@ public class Main {
 
         var registerService = new RegisterService(authDAO, userDAO);
         var loginService = new LoginService(authDAO, userDAO);
+        var logoutService = new LogoutService(authDAO);
 
-        Server server = new Server(userDAO, authDAO, registerService, loginService);
+        Server server = new Server(userDAO, authDAO, registerService, loginService, logoutService);
 
         server.run(8080);
 
