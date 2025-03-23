@@ -1,3 +1,4 @@
+import Service.CreateGameService;
 import Service.LoginService;
 import Service.LogoutService;
 import Service.RegisterService;
@@ -10,14 +11,14 @@ public class Main {
 
         UserDAO userDAO = new MemoryUserDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
-//        TODO: Uncomment this line when you've added the memoryGameDAO and have soemthing to use it on.
-//        GameDAO gameDAO = new MemoryGameDAO();
+        GameDAO gameDAO = new MemoryGameDAO();
 
         var registerService = new RegisterService(authDAO, userDAO);
         var loginService = new LoginService(authDAO, userDAO);
         var logoutService = new LogoutService(authDAO);
+        var createGameService = new CreateGameService(authDAO, gameDAO);
 
-        Server server = new Server(userDAO, authDAO, registerService, loginService, logoutService);
+        Server server = new Server(userDAO, authDAO, gameDAO, registerService, loginService, logoutService, createGameService);
 
         server.run(8080);
 
