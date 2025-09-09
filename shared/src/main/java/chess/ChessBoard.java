@@ -24,7 +24,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        BoardGrid[position.getRow()][position.getColumn()] = piece;
+        BoardGrid[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
     /**
@@ -35,7 +35,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return BoardGrid[position.getRow()][position.getColumn()];
+        return BoardGrid[position.getRow() - 1][position.getColumn() - 1];
     }
 
     /**
@@ -43,8 +43,30 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        ChessPiece.PieceType[] pieceOrder = {
+                ChessPiece.PieceType.ROOK,
+                ChessPiece.PieceType.KNIGHT,
+                ChessPiece.PieceType.BISHOP,
+                ChessPiece.PieceType.KING,
+                ChessPiece.PieceType.QUEEN,
+                ChessPiece.PieceType.BISHOP,
+                ChessPiece.PieceType.KNIGHT,
+                ChessPiece.PieceType.ROOK};
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                BoardGrid[i][j] = null;
+            }
+        }
+
+        for (int i = 1; i < 9; i++) {
+            addPiece(new ChessPosition(1, i), new ChessPiece(ChessGame.TeamColor.WHITE, pieceOrder[i - 1]));
+            addPiece(new ChessPosition(2, i), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
+            addPiece(new ChessPosition(7, i), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
+            addPiece(new ChessPosition(8, i), new ChessPiece(ChessGame.TeamColor.BLACK, pieceOrder[i - 1]));
+        }
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -58,5 +80,12 @@ public class ChessBoard {
     @Override
     public int hashCode() {
         return Arrays.deepHashCode(BoardGrid);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessBoard{" +
+                "BoardGrid=" + Arrays.toString(BoardGrid) +
+                '}';
     }
 }
