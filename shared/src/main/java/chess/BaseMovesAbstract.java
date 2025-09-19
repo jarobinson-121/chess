@@ -15,7 +15,6 @@ public abstract class BaseMovesAbstract implements PieceMovesCalculator {
         int moveCol = pos.getColumn() + colInc;
 
         if (moveRow > 8 || moveCol > 8 || moveRow < 1 || moveCol < 1) {
-            //TODO: possibly need to set allowDistance to false
             return;
         }
         ChessPosition newSpot = new ChessPosition(pos.getRow() + rowInc, pos.getColumn() + colInc);
