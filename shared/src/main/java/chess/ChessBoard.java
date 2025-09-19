@@ -11,10 +11,10 @@ import java.util.Objects;
  */
 public class ChessBoard {
 
-    private final ChessPiece[][] BoardGrid;
+    private final ChessPiece[][] boardGrid;
 
     public ChessBoard() {
-        this.BoardGrid = new ChessPiece[8][8];
+        this.boardGrid = new ChessPiece[8][8];
     }
 
     /**
@@ -24,7 +24,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        BoardGrid[position.getRow() - 1][position.getColumn() - 1] = piece;
+        boardGrid[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
     /**
@@ -35,7 +35,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return BoardGrid[position.getRow() - 1][position.getColumn() - 1];
+        return boardGrid[position.getRow() - 1][position.getColumn() - 1];
     }
 
     /**
@@ -55,7 +55,7 @@ public class ChessBoard {
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                BoardGrid[i][j] = null;
+                boardGrid[i][j] = null;
             }
         }
 
@@ -74,18 +74,18 @@ public class ChessBoard {
             return false;
         }
         ChessBoard that = (ChessBoard) o;
-        return Objects.deepEquals(BoardGrid, that.BoardGrid);
+        return Objects.deepEquals(boardGrid, that.boardGrid);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.deepHashCode(BoardGrid);
+        return Arrays.deepHashCode(boardGrid);
     }
 
     @Override
     public String toString() {
         return "ChessBoard{" +
-                "BoardGrid=" + Arrays.toString(BoardGrid) +
+                "boardGrid=" + Arrays.toString(boardGrid) +
                 '}';
     }
 }
