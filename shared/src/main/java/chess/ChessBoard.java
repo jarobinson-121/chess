@@ -47,8 +47,8 @@ public class ChessBoard {
                 ChessPiece.PieceType.ROOK,
                 ChessPiece.PieceType.KNIGHT,
                 ChessPiece.PieceType.BISHOP,
-                ChessPiece.PieceType.KING,
                 ChessPiece.PieceType.QUEEN,
+                ChessPiece.PieceType.KING,
                 ChessPiece.PieceType.BISHOP,
                 ChessPiece.PieceType.KNIGHT,
                 ChessPiece.PieceType.ROOK};
