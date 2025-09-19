@@ -53,7 +53,25 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        switch (type) {
+            case KING:
+                KingMovesCalculator kingMoves = new KingMovesCalculator();
+                return kingMoves.pieceMoves(board, myPosition);
+            case QUEEN:
+                QueenMovesCalculator queenMoves = new QueenMovesCalculator();
+                return queenMoves.pieceMoves(board, myPosition);
+            case ROOK:
+                RookMovesCalculator rookMoves = new RookMovesCalculator();
+                return rookMoves.pieceMoves(board, myPosition);
+            case BISHOP:
+                BishopMovesCalculator bishopMoves = new BishopMovesCalculator();
+                return bishopMoves.pieceMoves(board, myPosition);
+            case KNIGHT:
+                KnightMovesCalculator knightMoves = new KnightMovesCalculator();
+                return knightMoves.pieceMoves(board, myPosition);
+            default:
+                return null;
+        }
     }
 
     @Override
@@ -72,9 +90,7 @@ public class ChessPiece {
 
     @Override
     public String toString() {
-        return "ChessPiece{" +
-                "pieceColor=" + pieceColor +
-                ", type=" + type +
+        return "ChessPiece{" + pieceColor + type +
                 '}';
     }
 }
