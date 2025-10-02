@@ -3,6 +3,9 @@ package chess;
 import java.util.Arrays;
 import java.util.Objects;
 
+import static chess.ChessGame.TeamColor.WHITE;
+import static chess.ChessPiece.PieceType.KING;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -12,9 +15,13 @@ import java.util.Objects;
 public class ChessBoard {
 
     private final ChessPiece[][] boardGrid;
+    private ChessPosition whiteKingPos;
+    private ChessPosition blackKingPos;
 
     public ChessBoard() {
         this.boardGrid = new ChessPiece[8][8];
+        this.whiteKingPos = null;
+        this.blackKingPos = null;
     }
 
     /**
@@ -25,6 +32,13 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         boardGrid[position.getRow() - 1][position.getColumn() - 1] = piece;
+        if (piece.getPieceType() == KING) {
+            if (piece.getTeamColor() == WHITE) {
+                whiteKingPos = position;
+            } else {
+                blackKingPos = position;
+            }
+        }
     }
 
     /**
@@ -48,7 +62,7 @@ public class ChessBoard {
                 ChessPiece.PieceType.KNIGHT,
                 ChessPiece.PieceType.BISHOP,
                 ChessPiece.PieceType.QUEEN,
-                ChessPiece.PieceType.KING,
+                KING,
                 ChessPiece.PieceType.BISHOP,
                 ChessPiece.PieceType.KNIGHT,
                 ChessPiece.PieceType.ROOK};
@@ -60,10 +74,18 @@ public class ChessBoard {
         }
 
         for (int i = 1; i < 9; i++) {
-            addPiece(new ChessPosition(1, i), new ChessPiece(ChessGame.TeamColor.WHITE, pieceOrder[i - 1]));
-            addPiece(new ChessPosition(2, i), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
+            addPiece(new ChessPosition(1, i), new ChessPiece(WHITE, pieceOrder[i - 1]));
+            addPiece(new ChessPosition(2, i), new ChessPiece(WHITE, ChessPiece.PieceType.PAWN));
             addPiece(new ChessPosition(7, i), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
             addPiece(new ChessPosition(8, i), new ChessPiece(ChessGame.TeamColor.BLACK, pieceOrder[i - 1]));
+        }
+    }
+
+    public ChessPosition getKingPos(ChessGame.TeamColor color) {
+        if (color == WHITE) {
+            return whiteKingPos;
+        } else {
+            return blackKingPos;
         }
     }
 
