@@ -32,7 +32,7 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         boardGrid[position.getRow() - 1][position.getColumn() - 1] = piece;
-        if (piece.getPieceType() == KING) {
+        if (piece != null && piece.getPieceType() == KING) {
             if (piece.getTeamColor() == WHITE) {
                 whiteKingPos = position;
             } else {
