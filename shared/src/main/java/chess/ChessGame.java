@@ -55,7 +55,23 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = gameBoard.getPiece(startPosition);
+
+        if (piece != null) {
+            Collection<ChessMove> moves = piece.pieceMoves(gameBoard, startPosition);
+            Iterator<ChessMove> iterator = moves.iterator();
+
+            while (iterator.hasNext()) {
+                ChessMove currMove = iterator.next();
+//                System.out.println(currMove.toString());
+
+                if (!testMove(currMove)) {
+                    iterator.remove();
+                }
+            }
+            return moves;
+        }
+        return null;
     }
 
     /**
@@ -71,11 +87,8 @@ public class ChessGame {
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = gameBoard.getPiece(start);
         ChessPiece capture = gameBoard.getPiece(end);
-//        Collection<ChessMove> validMoves = validMoves(start);
 
-        //TODO: Make sure to add checker that the validMoves.contains(move) once validMoves works
-
-        if (piece != null && piece.getTeamColor() == teamTurn) {
+        if (piece != null && validMoves(start).contains(move) && piece.getTeamColor() == teamTurn) {
             if (promo == null) {
                 gameBoard.addPiece(end, piece);
             } else {
@@ -97,8 +110,6 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-
-        ChessBoard currentBoard = gameBoard;
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -157,23 +168,46 @@ public class ChessGame {
         return gameBoard;
     }
 
-    public boolean testMove(ChessMove move) throws InvalidMoveException {
+    public boolean testMove(ChessMove move) {
 
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         ChessPiece mover = gameBoard.getPiece(start);
         ChessPiece capture = gameBoard.getPiece(end);
         boolean validMove = true;
+        TeamColor moverColor = teamTurn;
+        TeamColor currTurn = teamTurn;
 
-        makeMove(move);
+        doTestMove(move);
 
-        if (isInCheck(teamTurn)) {
+        if (isInCheck(moverColor)) {
             validMove = false;
         }
 
         undoMove(start, mover, end, capture);
 
+        teamTurn = currTurn;
+
         return validMove;
+    }
+
+    public void doTestMove(ChessMove move) {
+        ChessPiece.PieceType promo = move.getPromotionPiece();
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        ChessPiece piece = gameBoard.getPiece(start);
+        ChessPiece capture = gameBoard.getPiece(end);
+
+        if (piece != null && piece.getTeamColor() == teamTurn) {
+            if (promo == null) {
+                gameBoard.addPiece(end, piece);
+            } else {
+                gameBoard.addPiece(end, new ChessPiece(teamTurn, promo));
+            }
+
+            gameBoard.addPiece(start, null);
+
+        }
     }
 
     public void undoMove(ChessPosition start, ChessPiece mover, ChessPosition end, ChessPiece capture) {
