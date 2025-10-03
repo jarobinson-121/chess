@@ -152,7 +152,12 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (!isInCheck(teamColor)) {
+            if (noPieceMoves(teamColor)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -180,8 +185,7 @@ public class ChessGame {
         ChessPiece mover = gameBoard.getPiece(start);
         ChessPiece capture = gameBoard.getPiece(end);
         boolean validMove = true;
-        TeamColor moverColor = teamTurn;
-        TeamColor currTurn = teamTurn;
+        TeamColor moverColor = mover.getTeamColor();
 
         doTestMove(move);
 
@@ -191,8 +195,6 @@ public class ChessGame {
 
         undoMove(start, mover, end, capture);
 
-        teamTurn = currTurn;
-
         return validMove;
     }
 
@@ -201,13 +203,13 @@ public class ChessGame {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = gameBoard.getPiece(start);
-        ChessPiece capture = gameBoard.getPiece(end);
+        TeamColor moverColor = piece.getTeamColor();
 
-        if (piece != null && piece.getTeamColor() == teamTurn) {
+        if (piece != null && moverColor == teamTurn) {
             if (promo == null) {
                 gameBoard.addPiece(end, piece);
             } else {
-                gameBoard.addPiece(end, new ChessPiece(teamTurn, promo));
+                gameBoard.addPiece(end, new ChessPiece(moverColor, promo));
             }
 
             gameBoard.addPiece(start, null);
