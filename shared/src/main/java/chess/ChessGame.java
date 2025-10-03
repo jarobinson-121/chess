@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -95,7 +96,25 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+
+        ChessBoard currentBoard = gameBoard;
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPiece piece = gameBoard.getPiece(new ChessPosition(i + 1, j + 1));
+                if (piece != null && piece.getTeamColor() != teamColor) {
+                    Collection<ChessMove> currPieceMoves = piece.pieceMoves(gameBoard, new ChessPosition(i + 1, j + 1));
+                    Iterator<ChessMove> iterator = currPieceMoves.iterator();
+                    while (iterator.hasNext()) {
+                        ChessMove currMove = iterator.next();
+                        if (currMove.getEndPosition().equals(gameBoard.getKingPos(teamColor))) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -136,6 +155,7 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return gameBoard;
     }
+
 
     @Override
     public boolean equals(Object o) {
