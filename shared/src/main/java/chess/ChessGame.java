@@ -110,19 +110,11 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                ChessPiece piece = gameBoard.getPiece(new ChessPosition(i + 1, j + 1));
-                if (piece != null && piece.getTeamColor() != teamColor) {
-                    Collection<ChessMove> currPieceMoves = piece.pieceMoves(gameBoard, new ChessPosition(i + 1, j + 1));
-                    Iterator<ChessMove> iterator = currPieceMoves.iterator();
-                    while (iterator.hasNext()) {
-                        ChessMove currMove = iterator.next();
-                        if (currMove.getEndPosition().equals(gameBoard.getKingPos(teamColor))) {
-                            return true;
-                        }
-                    }
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition pos = new ChessPosition(i, j);
+                if (attacksKing(teamColor, pos)) {
+                    return true;
                 }
             }
         }
@@ -185,11 +177,10 @@ public class ChessGame {
         ChessPiece mover = gameBoard.getPiece(start);
         ChessPiece capture = gameBoard.getPiece(end);
         boolean validMove = true;
-        TeamColor moverColor = mover.getTeamColor();
 
         doTestMove(move);
 
-        if (isInCheck(moverColor)) {
+        if (isInCheck(mover.getTeamColor())) {
             validMove = false;
         }
 
@@ -205,7 +196,7 @@ public class ChessGame {
         ChessPiece piece = gameBoard.getPiece(start);
         TeamColor moverColor = piece.getTeamColor();
 
-        if (piece != null && piece.getTeamColor() == moverColor) {
+        if (piece != null) {
             if (promo == null) {
                 gameBoard.addPiece(end, piece);
             } else {
@@ -229,6 +220,21 @@ public class ChessGame {
             }
         }
         return true;
+    }
+
+    public boolean attacksKing(TeamColor color, ChessPosition pos) {
+        ChessPiece piece = gameBoard.getPiece(pos);
+        if (piece != null && piece.getTeamColor() != color) {
+            Collection<ChessMove> currPieceMoves = piece.pieceMoves(gameBoard, pos);
+            Iterator<ChessMove> iterator = currPieceMoves.iterator();
+            while (iterator.hasNext()) {
+                ChessMove currMove = iterator.next();
+                if (currMove.getEndPosition().equals(gameBoard.getKingPos(color))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public void undoMove(ChessPosition start, ChessPiece mover, ChessPosition end, ChessPiece capture) {
