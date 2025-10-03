@@ -70,6 +70,7 @@ public class ChessGame {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = gameBoard.getPiece(start);
+        ChessPiece capture = gameBoard.getPiece(end);
 //        Collection<ChessMove> validMoves = validMoves(start);
 
         //TODO: Make sure to add checker that the validMoves.contains(move) once validMoves works
@@ -156,6 +157,29 @@ public class ChessGame {
         return gameBoard;
     }
 
+    public boolean testMove(ChessMove move) throws InvalidMoveException {
+
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        ChessPiece mover = gameBoard.getPiece(start);
+        ChessPiece capture = gameBoard.getPiece(end);
+        boolean validMove = true;
+
+        makeMove(move);
+
+        if (isInCheck(teamTurn)) {
+            validMove = false;
+        }
+
+        undoMove(start, mover, end, capture);
+
+        return validMove;
+    }
+
+    public void undoMove(ChessPosition start, ChessPiece mover, ChessPosition end, ChessPiece capture) {
+        gameBoard.addPiece(start, mover);
+        gameBoard.addPiece(end, capture);
+    }
 
     @Override
     public boolean equals(Object o) {
