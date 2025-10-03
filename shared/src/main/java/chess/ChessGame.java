@@ -205,7 +205,7 @@ public class ChessGame {
         ChessPiece piece = gameBoard.getPiece(start);
         TeamColor moverColor = piece.getTeamColor();
 
-        if (piece != null && moverColor == teamTurn) {
+        if (piece != null && piece.getTeamColor() == moverColor) {
             if (promo == null) {
                 gameBoard.addPiece(end, piece);
             } else {
