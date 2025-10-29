@@ -19,7 +19,6 @@ public class PawnMovesCalculator extends BaseMovesAbstract {
         ChessPiece pawn = board.getPiece(myPosition);
 
         int col = myPosition.getColumn();
-        int row = myPosition.getRow();
 
         int rightDiag = col + 1;
         int leftDiag = col - 1;
@@ -66,7 +65,12 @@ public class PawnMovesCalculator extends BaseMovesAbstract {
         return moves;
     }
 
-    private void addMoves(Collection<ChessMove> moves, int moveRow, int promoRow, ChessPiece.PieceType[] promoOpts, ChessPosition myPosition, int diag) {
+    private void addMoves(Collection<ChessMove> moves,
+                          int moveRow,
+                          int promoRow,
+                          ChessPiece.PieceType[] promoOpts,
+                          ChessPosition myPosition,
+                          int diag) {
         if (moveRow == promoRow) {
             for (ChessPiece.PieceType option : promoOpts) {
                 moves.add(new ChessMove(myPosition, new ChessPosition(moveRow, diag), option));
