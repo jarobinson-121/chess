@@ -1,18 +1,18 @@
 package server;
 
 import com.google.gson.Gson;
-import com.sun.net.httpserver.Request;
 import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
+import service.LoginService;
 import service.RegisterService;
 import model.UserData;
-import org.eclipse.jetty.server.Response;
 
 public class Server {
     private final UserDAO userDAO;
     private final AuthDAO authDAO;
     private final RegisterService registerService;
+    private final LoginService loginService;
 
     private final Javalin javalin;
 
@@ -20,9 +20,10 @@ public class Server {
         userDAO = new MemoryUserDAO();
         authDAO = new MemoryAuthDAO();
         registerService = new RegisterService(authDAO, userDAO);
+        loginService = new LoginService(authDAO, userDAO);
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
-                .post("/user", this::addUser);
-
+                .post("/user", this::addUser)
+                .post("/session", this::login);
 
         // Register your endpoints and exception handlers here.
 
@@ -40,6 +41,16 @@ public class Server {
             return;
         }
         var auth = registerService.createUser(user.username(), user.password(), user.email());
+        ctx.result(new Gson().toJson(auth));
+    }
+
+    private void login(Context ctx) throws DataAccessException {
+        var userInfo = new Gson().fromJson(ctx.body(), LoginRequest.class);
+        if (userInfo.username() == null || userInfo.password() == null) {
+            ctx.status(400).result("Error: bad request");
+            return;
+        }
+        var auth = loginService.loginUser(userInfo.username(), userInfo.password());
         ctx.result(new Gson().toJson(auth));
     }
 
