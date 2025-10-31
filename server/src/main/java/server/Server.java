@@ -5,6 +5,7 @@ import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.LoginService;
+import service.LogoutService;
 import service.RegisterService;
 import model.UserData;
 
@@ -13,6 +14,7 @@ public class Server {
     private final AuthDAO authDAO;
     private final RegisterService registerService;
     private final LoginService loginService;
+    private final LogoutService logoutService;
 
     private final Javalin javalin;
 
@@ -21,9 +23,11 @@ public class Server {
         authDAO = new MemoryAuthDAO();
         registerService = new RegisterService(authDAO, userDAO);
         loginService = new LoginService(authDAO, userDAO);
+        logoutService = new LogoutService(authDAO);
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", this::addUser)
-                .post("/session", this::login);
+                .post("/session", this::login)
+                .delete("/session", this::logout);
 
         // Register your endpoints and exception handlers here.
 
@@ -52,6 +56,16 @@ public class Server {
         }
         var auth = loginService.loginUser(userInfo.username(), userInfo.password());
         ctx.result(new Gson().toJson(auth));
+    }
+
+    private void logout(Context ctx) throws DataAccessException {
+        String token = ctx.header("authorization");
+        if (token == null || token.isBlank()) {
+            ctx.status(400).result("Error: bad request");
+            return;
+        }
+        logoutService.logoutUser(token);
+        ctx.status(200).result("");
     }
 
     public void stop() {
