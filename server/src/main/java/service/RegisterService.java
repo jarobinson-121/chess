@@ -3,6 +3,7 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
+import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
 
@@ -15,11 +16,13 @@ public class RegisterService {
         this.UserDAO = userDAO;
     }
 
-    public AuthData createUser(String username, String password, String email) throws DataAccessException {
-        if (UserDAO.getUserByUsername(username) != null) {
-            throw new DataAccessException("Username already exists");
+    public AuthData createUser(String username, String password, String email) throws ResponseException {
+        try {
+            UserDAO.addUser(new UserData(username, password, email));
+            return AuthDAO.createAuth(username);
+        } catch (DataAccessException ex) {
+            throw new ResponseException(ResponseException.Code.UnameTaken, "Error: already taken");
         }
-        UserDAO.addUser(new UserData(username, password, email));
-        return AuthDAO.createAuth(username);
+
     }
 }
