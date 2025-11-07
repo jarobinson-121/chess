@@ -10,7 +10,7 @@ public class ResponseException extends Exception {
     public enum Code {
         ServerError,
         BadRequest,
-        UnameTaken,
+        AlreadyTakenError,
         Unauthorized
     }
 
@@ -41,7 +41,7 @@ public class ResponseException extends Exception {
             case 500 -> Code.ServerError;
             case 400 -> Code.BadRequest;
             case 401 -> Code.Unauthorized;
-            case 403 -> Code.UnameTaken;
+            case 403 -> Code.AlreadyTakenError;
             default -> throw new IllegalArgumentException("Unknown HTTP status code: " + httpStatusCode);
         };
     }
@@ -51,7 +51,7 @@ public class ResponseException extends Exception {
             case ServerError -> 500;
             case BadRequest -> 400;
             case Unauthorized -> 401;
-            case UnameTaken -> 403;
+            case AlreadyTakenError -> 403;
         };
     }
 }
