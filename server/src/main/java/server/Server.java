@@ -59,21 +59,20 @@ public class Server {
         ctx.result(new Gson().toJson(auth));
     }
 
-    private void login(Context ctx) throws DataAccessException {
-        var userInfo = new Gson().fromJson(ctx.body(), LoginRequest.class);
-        if (userInfo.username() == null || userInfo.password() == null) {
-            ctx.status(400).result("Error: bad request");
-            return;
+    private void login(Context ctx) throws DataAccessException, ResponseException {
+        var user = new Gson().fromJson(ctx.body(), LoginRequest.class);
+        if (user == null || user.username() == null || user.username().isBlank()
+                || user.password() == null || user.password().isBlank()) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "Error: Bad Request");
         }
-        var auth = loginService.loginUser(userInfo.username(), userInfo.password());
+        var auth = loginService.loginUser(user.username(), user.password());
         ctx.result(new Gson().toJson(auth));
     }
 
-    private void logout(Context ctx) throws DataAccessException {
+    private void logout(Context ctx) throws DataAccessException, ResponseException {
         String token = ctx.header("authorization");
         if (token == null || token.isBlank()) {
-            ctx.status(400).result("Error: bad request");
-            return;
+            throw new ResponseException(ResponseException.Code.BadRequest, "Error: Bad Request");
         }
         logoutService.logoutUser(token);
         ctx.status(200).result("");
