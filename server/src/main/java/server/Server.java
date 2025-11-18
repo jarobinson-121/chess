@@ -51,8 +51,7 @@ public class Server {
 
     private void addUser(Context ctx) throws DataAccessException, ResponseException {
         var user = new Gson().fromJson(ctx.body(), UserData.class);
-        if (user == null || user.username() == null || user.username().isBlank()
-                || user.password() == null || user.password().isBlank()) {
+        if (user == null || user.username() == null || user.password() == null) {
             throw new ResponseException(ResponseException.Code.BadRequest, "Error: Bad Request");
         }
         var auth = registerService.createUser(user.username(), user.password(), user.email());
@@ -61,8 +60,7 @@ public class Server {
 
     private void login(Context ctx) throws DataAccessException, ResponseException {
         var user = new Gson().fromJson(ctx.body(), LoginRequest.class);
-        if (user == null || user.username() == null || user.username().isBlank()
-                || user.password() == null || user.password().isBlank()) {
+        if (user == null || user.username() == null || user.password() == null) {
             throw new ResponseException(ResponseException.Code.BadRequest, "Error: Bad Request");
         }
         var auth = loginService.loginUser(user.username(), user.password());
@@ -71,18 +69,17 @@ public class Server {
 
     private void logout(Context ctx) throws DataAccessException, ResponseException {
         String token = ctx.header("authorization");
-        if (token == null || token.isBlank()) {
+        if (token == null) {
             throw new ResponseException(ResponseException.Code.BadRequest, "Error: Bad Request");
         }
         logoutService.logoutUser(token);
         ctx.status(200).result("");
     }
 
-    private void addGame(Context ctx) throws DataAccessException {
+    private void addGame(Context ctx) throws DataAccessException, ResponseException {
         var token = ctx.header("authorization");
-        if (token == null || token.isBlank()) {
-            ctx.status(400).result("Error: bad request");
-            return;
+        if (token == null) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "Error: Bad Request");
         }
         var name = new Gson().fromJson(ctx.body(), CreateGameRequest.class);
         var game = createGameService.createGame(token, name.gameName());
