@@ -33,6 +33,10 @@ public class MemoryGameDAO implements GameDAO {
         return game;
     }
 
+    public HashMap<Integer, GameData> listGames() {
+        return gameList;
+    }
+
     public void deleteGame(String gameID) {
         gameList.remove(gameID);
     }
