@@ -46,7 +46,11 @@ class LoginServiceTest {
 
     @Test
     @DisplayName("Bad Password")
-    void loginFailPass() {
-        Assertions.assertEquals(1, 1);
+    void loginFailPass() throws ResponseException {
+        registerService.createUser(existingUser.getUsername(), existingUser.getPassword(), existingUser.getEmail());
+
+        Assertions.assertThrows(ResponseException.class, () -> {
+            loginService.loginUser(existingUser.getUsername(), "BadPassword");
+        });
     }
 }
