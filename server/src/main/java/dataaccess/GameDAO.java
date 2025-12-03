@@ -8,9 +8,9 @@ public interface GameDAO {
 
     GameData createGame(String gameName);
 
-    GameData getGame(String gameID);
+    GameData getGame(Integer gameID);
 
-    GameData joinGame(String playerColor, String gameID);
+    void updateGame(GameData newGame);
 
     HashMap<Integer, GameData> listGames();
 
