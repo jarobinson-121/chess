@@ -18,19 +18,13 @@ public class MemoryGameDAO implements GameDAO {
         return game;
     }
 
-    public GameData getGame(String gameID) {
+    public GameData getGame(Integer gameID) {
         return gameList.get(gameID);
     }
 
-    public GameData joinGame(String playerColor, String GameID) {
-        GameData game = gameList.get(GameID);
-        gameList.remove(GameID);
-        return game;
-    }
-
-    public GameData updateGame(String gameID) {
-        GameData game = gameList.get(gameID);
-        return game;
+    public void updateGame(GameData newGame) {
+        gameList.remove(newGame.gameID());
+        gameList.put(newGame.gameID(), newGame);
     }
 
     public HashMap<Integer, GameData> listGames() {
