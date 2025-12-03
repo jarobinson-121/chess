@@ -21,10 +21,12 @@ public class JoinGameService {
         if (user == null) {
             throw new DataAccessException("Unauthorized");
         }
+
         GameData oldGame = GameDAO.getGame(gameID);
         if (oldGame.blackUsername() != null && oldGame.whiteUsername() != null) {
             throw new DataAccessException("Already Taken");
         }
+
         String blackUname = oldGame.blackUsername();
         String whiteUname = oldGame.whiteUsername();
         if ("WHITE".equals(color) && oldGame.whiteUsername() == null) {
@@ -32,6 +34,7 @@ public class JoinGameService {
         } else if ("BLACK".equals(color) && oldGame.blackUsername() == null) {
             blackUname = uname;
         }
+
         GameDAO.updateGame(new GameData(oldGame.gameID(), whiteUname, blackUname, oldGame.gameName(), oldGame.game()));
     }
 }
