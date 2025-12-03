@@ -63,7 +63,6 @@ public class ChessGame {
 
             while (iterator.hasNext()) {
                 ChessMove currMove = iterator.next();
-//                System.out.println(currMove.toString());
 
                 if (!testMove(currMove)) {
                     iterator.remove();
