@@ -5,10 +5,7 @@ import dataaccess.*;
 import exception.ResponseException;
 import io.javalin.*;
 import io.javalin.http.Context;
-import service.CreateGameService;
-import service.LoginService;
-import service.LogoutService;
-import service.RegisterService;
+import service.*;
 import model.UserData;
 
 public class Server {
@@ -19,6 +16,7 @@ public class Server {
     private final LoginService loginService;
     private final LogoutService logoutService;
     private final CreateGameService createGameService;
+    private final JoinGameService joinGameService;
 
     private final Javalin javalin;
 
@@ -30,6 +28,7 @@ public class Server {
         loginService = new LoginService(authDAO, userDAO);
         logoutService = new LogoutService(authDAO);
         createGameService = new CreateGameService(authDAO, gameDAO);
+        joinGameService = new JoinGameService(authDAO, gameDAO);
         javalin = Javalin.create(cfg -> {
                     cfg.staticFiles.add("web");
                     cfg.http.defaultContentType = "application/json";
@@ -38,6 +37,7 @@ public class Server {
                 .post("/session", this::login)
                 .delete("/session", this::logout)
                 .post("/game", this::addGame)
+                .put("/game", this::joinGame)
                 .exception(ResponseException.class, this::exceptionHandler);
 
         // Register your endpoints and exception handlers here.
@@ -85,6 +85,17 @@ public class Server {
         var game = createGameService.createGame(token, name.gameName());
         var response = String.format("{\"gameID\": %d}", game.gameID());
         ctx.status(200).result(response);
+    }
+
+    private void joinGame(Context ctx) throws DataAccessException, ResponseException {
+        var token = ctx.header("authorization");
+        if (token == null) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "Error: Bad Request");
+        }
+        var input = new Gson().fromJson(ctx.body(), JoinGameRequest.class);
+        Integer gameID = input.gameID();
+        String color = input.playerColor();
+        joinGameService.joinGame(token, color, gameID);
     }
 
     public void stop() {
