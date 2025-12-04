@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.GameData;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 public interface GameDAO {
@@ -12,7 +13,7 @@ public interface GameDAO {
 
     void updateGame(GameData newGame);
 
-    HashMap<Integer, GameData> listGames();
+    Collection<GameData> listGames();
 
     void deleteGame(String gameID);
 }
