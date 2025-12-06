@@ -8,19 +8,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import passoff.model.TestCreateRequest;
 import passoff.model.TestUser;
-import server.Server;
-
-import javax.xml.crypto.Data;
 
 class LoginServiceTest {
 
     private static TestUser existingUser;
-    private static TestUser newUser;
-    private static TestCreateRequest createRequest;
-    private static Server server;
-
 
     MemoryUserDAO userDAO = new MemoryUserDAO();
     MemoryAuthDAO authDAO = new MemoryAuthDAO();
