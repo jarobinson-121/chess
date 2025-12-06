@@ -15,7 +15,10 @@ public class MemoryAuthDAO implements AuthDAO {
         return auth;
     }
 
-    public AuthData getAuth(String token) {
+    public AuthData getAuth(String token) throws DataAccessException {
+        if (authList.get(token) == null) {
+            throw new DataAccessException("Error: User not found");
+        }
         return authList.get(token);
     }
 
@@ -25,5 +28,9 @@ public class MemoryAuthDAO implements AuthDAO {
 
     public static String generateToken() {
         return UUID.randomUUID().toString();
+    }
+
+    public void clearAuths() {
+        authList.clear();
     }
 }
