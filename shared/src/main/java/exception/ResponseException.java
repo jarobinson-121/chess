@@ -17,7 +17,7 @@ public class ResponseException extends Exception {
     final private Code code;
 
     public ResponseException(Code code, String message) {
-        super(message);
+        super("Error: " + message);
         this.code = code;
     }
 
