@@ -3,6 +3,7 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
+import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
 
@@ -15,24 +16,44 @@ public class JoinGameService {
         this.GameDAO = gameDAO;
     }
 
-    public void joinGame(String token, String color, Integer gameID) throws DataAccessException {
-        AuthData user = AuthDAO.getAuth(token);
+    public void joinGame(String token, String color, Integer gameID) throws DataAccessException, ResponseException {
+        AuthData user;
+        try {
+            user = AuthDAO.getAuth(token);
+        } catch (DataAccessException ex) {
+            throw new ResponseException(ResponseException.Code.Unauthorized, ex.getMessage());
+        }
         String uname = user.username();
         if (user == null) {
-            throw new DataAccessException("Unauthorized");
+            throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
         }
 
-        GameData oldGame = GameDAO.getGame(gameID);
+        GameData oldGame;
+        try {
+            oldGame = GameDAO.getGame(gameID);
+        } catch (DataAccessException ex) {
+            throw new ResponseException(ResponseException.Code.BadRequest, ex.getMessage());
+        }
         if (oldGame.blackUsername() != null && oldGame.whiteUsername() != null) {
-            throw new DataAccessException("Already Taken");
+            throw new ResponseException(ResponseException.Code.AlreadyTakenError, "Unauthorized");
         }
 
         String blackUname = oldGame.blackUsername();
         String whiteUname = oldGame.whiteUsername();
-        if ("WHITE".equals(color) && oldGame.whiteUsername() == null) {
+        if (color == null) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "Color field missing");
+        } else if ("WHITE".equals(color)) {
+            if (whiteUname != null) {
+                throw new ResponseException(ResponseException.Code.AlreadyTakenError, "Color already taken");
+            }
             whiteUname = uname;
-        } else if ("BLACK".equals(color) && oldGame.blackUsername() == null) {
+        } else if ("BLACK".equals(color)) {
+            if (blackUname != null) {
+                throw new ResponseException(ResponseException.Code.AlreadyTakenError, "Color already taken");
+            }
             blackUname = uname;
+        } else {
+            throw new ResponseException(ResponseException.Code.BadRequest, "Invalid color");
         }
 
         GameDAO.updateGame(new GameData(oldGame.gameID(), whiteUname, blackUname, oldGame.gameName(), oldGame.game()));
