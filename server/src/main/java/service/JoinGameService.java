@@ -8,18 +8,18 @@ import model.AuthData;
 import model.GameData;
 
 public class JoinGameService {
-    private AuthDAO AuthDAO;
-    private GameDAO GameDAO;
+    private AuthDAO authDAO;
+    private GameDAO gameDAO;
 
-    public JoinGameService(AuthDAO authDAO, GameDAO gameDAO) {
-        this.AuthDAO = authDAO;
-        this.GameDAO = gameDAO;
+    public JoinGameService(AuthDAO auth, GameDAO game) {
+        this.authDAO = auth;
+        this.gameDAO = game;
     }
 
     public void joinGame(String token, String color, Integer gameID) throws DataAccessException, ResponseException {
         AuthData user;
         try {
-            user = AuthDAO.getAuth(token);
+            user = authDAO.getAuth(token);
         } catch (DataAccessException ex) {
             throw new ResponseException(ResponseException.Code.Unauthorized, ex.getMessage());
         }
@@ -30,7 +30,7 @@ public class JoinGameService {
 
         GameData oldGame;
         try {
-            oldGame = GameDAO.getGame(gameID);
+            oldGame = gameDAO.getGame(gameID);
         } catch (DataAccessException ex) {
             throw new ResponseException(ResponseException.Code.BadRequest, ex.getMessage());
         }
@@ -56,6 +56,6 @@ public class JoinGameService {
             throw new ResponseException(ResponseException.Code.BadRequest, "Invalid color");
         }
 
-        GameDAO.updateGame(new GameData(oldGame.gameID(), whiteUname, blackUname, oldGame.gameName(), oldGame.game()));
+        gameDAO.updateGame(new GameData(oldGame.gameID(), whiteUname, blackUname, oldGame.gameName(), oldGame.game()));
     }
 }

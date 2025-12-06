@@ -16,14 +16,6 @@ public class MemoryUserDAO implements UserDAO {
         return user;
     }
 
-    public UserData getUserByEmail(String email) throws DataAccessException {
-        if (users.get(email) == null) {
-            throw new DataAccessException("User not found");
-        }
-        return users.get(email);
-
-    }
-
     public UserData getUserByUsername(String username) throws DataAccessException {
         if (users.get(username) == null) {
             throw new DataAccessException("User not found");
@@ -31,12 +23,12 @@ public class MemoryUserDAO implements UserDAO {
         return users.get(username);
     }
 
-    public void deleteUser(String username) throws DataAccessException {
-        if (users.get(username) == null) {
-            throw new DataAccessException("User not found");
-        }
-        users.remove(username);
-    }
+//    public void deleteUser(String username) throws DataAccessException {
+//        if (users.get(username) == null) {
+//            throw new DataAccessException("User not found");
+//        }
+//        users.remove(username);
+//    }
 
     public void clearUsers() {
         users.clear();

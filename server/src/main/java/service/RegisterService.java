@@ -11,9 +11,9 @@ public class RegisterService {
     private AuthDAO AuthDAO;
     private UserDAO UserDAO;
 
-    public RegisterService(AuthDAO authDAO, UserDAO userDAO) {
-        this.AuthDAO = authDAO;
-        this.UserDAO = userDAO;
+    public RegisterService(AuthDAO auth, UserDAO user) {
+        this.AuthDAO = auth;
+        this.UserDAO = user;
     }
 
     public AuthData createUser(String username, String password, String email) throws ResponseException {

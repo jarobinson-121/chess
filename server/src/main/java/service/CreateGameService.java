@@ -8,18 +8,18 @@ import model.AuthData;
 import model.GameData;
 
 public class CreateGameService {
-    private AuthDAO AuthDAO;
-    private GameDAO GameDAO;
+    private AuthDAO authDAO;
+    private GameDAO gameDAO;
 
-    public CreateGameService(AuthDAO authDAO, GameDAO gameDAO) {
-        this.AuthDAO = authDAO;
-        this.GameDAO = gameDAO;
+    public CreateGameService(AuthDAO auth, GameDAO game) {
+        this.authDAO = auth;
+        this.gameDAO = game;
     }
 
     public GameData createGame(String token, String gameName) throws ResponseException {
         AuthData user;
         try {
-            user = AuthDAO.getAuth(token);
+            user = authDAO.getAuth(token);
         } catch (DataAccessException ex) {
             throw new ResponseException(ResponseException.Code.Unauthorized, ex.getMessage());
         }
@@ -29,7 +29,7 @@ public class CreateGameService {
         if (gameName == null) {
             throw new ResponseException(ResponseException.Code.BadRequest, "Empty game name");
         }
-        return GameDAO.createGame(gameName);
+        return gameDAO.createGame(gameName);
     }
 
 }

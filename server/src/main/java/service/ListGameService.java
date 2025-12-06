@@ -13,18 +13,18 @@ import java.util.HashMap;
 
 
 public class ListGameService {
-    private AuthDAO AuthDAO;
-    private GameDAO GameDAO;
+    private AuthDAO authDAO;
+    private GameDAO gameDAO;
 
-    public ListGameService(AuthDAO authDAO, GameDAO gameDAO) {
-        this.AuthDAO = authDAO;
-        this.GameDAO = gameDAO;
+    public ListGameService(AuthDAO auth, GameDAO game) {
+        this.authDAO = auth;
+        this.gameDAO = game;
     }
 
     public HashMap<String, Object> listGames(String token) throws ResponseException {
         AuthData user;
         try {
-            user = AuthDAO.getAuth(token);
+            user = authDAO.getAuth(token);
         } catch (DataAccessException ex) {
             throw new ResponseException(ResponseException.Code.Unauthorized, ex.getMessage());
         }
@@ -32,7 +32,7 @@ public class ListGameService {
             throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
         }
 
-        Collection<GameData> fullList = GameDAO.listGames();
+        Collection<GameData> fullList = gameDAO.listGames();
 
         ArrayList<HashMap<String, Object>> editedList = new ArrayList<>();
 
