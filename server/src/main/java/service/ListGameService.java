@@ -3,6 +3,7 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
+import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
 
@@ -20,10 +21,15 @@ public class ListGameService {
         this.GameDAO = gameDAO;
     }
 
-    public HashMap<String, Object> listGames(String token) throws DataAccessException {
-        AuthData user = AuthDAO.getAuth(token);
+    public HashMap<String, Object> listGames(String token) throws ResponseException {
+        AuthData user;
+        try {
+            user = AuthDAO.getAuth(token);
+        } catch (DataAccessException ex) {
+            throw new ResponseException(ResponseException.Code.Unauthorized, ex.getMessage());
+        }
         if (user == null) {
-            throw new DataAccessException("Unauthorized");
+            throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
         }
 
         Collection<GameData> fullList = GameDAO.listGames();
@@ -32,8 +38,8 @@ public class ListGameService {
 
         for (GameData game : fullList) {
             HashMap<String, Object> currGame = new HashMap<>();
-            currGame.put("gameID:", game.gameID());
-            currGame.put("whiteUsername:", game.whiteUsername());
+            currGame.put("gameID", game.gameID());
+            currGame.put("whiteUsername", game.whiteUsername());
             currGame.put("blackUsername", game.blackUsername());
             currGame.put("gameName", game.gameName());
 
