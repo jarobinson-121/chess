@@ -40,7 +40,9 @@ class LogoutServiceTest {
 
         logoutService.logoutUser(token);
 
-        Assertions.assertNull(authDAO.getAuth(token));
+        Assertions.assertThrows(ResponseException.class, () -> {
+            logoutService.logoutUser(token);
+        });
     }
 
     @Test
