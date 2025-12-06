@@ -38,13 +38,6 @@ public class MemoryGameDAO implements GameDAO {
         return gameList.values();
     }
 
-    public void deleteGame(String gameID) throws DataAccessException {
-        if (gameList.get(gameID) == null) {
-            throw new DataAccessException("Game not found");
-        }
-        gameList.remove(gameID);
-    }
-
     public void clearGames() {
         gameList.clear();
     }

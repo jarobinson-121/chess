@@ -23,13 +23,6 @@ public class MemoryUserDAO implements UserDAO {
         return users.get(username);
     }
 
-//    public void deleteUser(String username) throws DataAccessException {
-//        if (users.get(username) == null) {
-//            throw new DataAccessException("User not found");
-//        }
-//        users.remove(username);
-//    }
-
     public void clearUsers() {
         users.clear();
     }

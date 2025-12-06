@@ -14,7 +14,5 @@ public interface GameDAO {
 
     Collection<GameData> listGames();
 
-    void deleteGame(String gameID) throws DataAccessException;
-
     void clearGames();
 }
