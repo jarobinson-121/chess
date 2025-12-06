@@ -10,22 +10,35 @@ public class MemoryUserDAO implements UserDAO {
 
     public UserData addUser(UserData user) throws DataAccessException {
         if (users.get(user.username()) != null) {
-            throw new DataAccessException("Error: already taken");
+            throw new DataAccessException("Already taken");
         }
         users.put(user.username(), user);
         return user;
     }
 
     public UserData getUserByEmail(String email) throws DataAccessException {
+        if (users.get(email) == null) {
+            throw new DataAccessException("User not found");
+        }
         return users.get(email);
 
     }
 
     public UserData getUserByUsername(String username) throws DataAccessException {
+        if (users.get(username) == null) {
+            throw new DataAccessException("User not found");
+        }
         return users.get(username);
     }
 
     public void deleteUser(String username) throws DataAccessException {
+        if (users.get(username) == null) {
+            throw new DataAccessException("User not found");
+        }
         users.remove(username);
+    }
+
+    public void clearUsers() {
+        users.clear();
     }
 }
