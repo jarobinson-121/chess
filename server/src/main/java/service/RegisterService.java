@@ -21,7 +21,7 @@ public class RegisterService {
             UserDAO.addUser(new UserData(username, password, email));
             return AuthDAO.createAuth(username);
         } catch (DataAccessException ex) {
-            throw new ResponseException(ResponseException.Code.AlreadyTakenError, "Error: already taken");
+            throw new ResponseException(ResponseException.Code.AlreadyTakenError, "already taken");
         }
 
     }
