@@ -41,7 +41,8 @@ public class Server {
                 .post("/game", this::addGame)
                 .put("/game", this::joinGame)
                 .get("/game", this::listGames)
-                .exception(ResponseException.class, this::exceptionHandler);
+                .delete("/db", this::clearDB)
+                .exception(ResponseException.class, this::responseExceptionHandler);
 
     }
 
@@ -108,11 +109,18 @@ public class Server {
         ctx.status(200).result(new Gson().toJson(response));
     }
 
+    private void clearDB(Context ctx) throws ResponseException {
+        gameDAO.clearGames();
+        userDAO.clearUsers();
+        authDAO.clearAuths();
+        ctx.status(200);
+    }
+
     public void stop() {
         javalin.stop();
     }
 
-    private void exceptionHandler(ResponseException ex, Context ctx) {
+    private void responseExceptionHandler(ResponseException ex, Context ctx) {
         ctx.status(ex.toHttpStatusCode());
         ctx.result(ex.toJson());
     }
