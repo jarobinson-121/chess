@@ -1,9 +1,11 @@
 package dataaccess;
 
 import model.AuthData;
+import model.UserData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -19,6 +21,19 @@ public class SQLAuthDAO implements AuthDAO {
 
     @Override
     public AuthData getAuth(String token) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT token, username FROM auths WHERE token=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, token);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readAuth(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("unable to read auth from database", e);
+        }
         return null;
     }
 
@@ -31,6 +46,12 @@ public class SQLAuthDAO implements AuthDAO {
     public void clearAuths() throws DataAccessException {
         var statement = "DELETE FROM auths";
         executeUpdate(statement);
+    }
+
+    private AuthData readAuth(ResultSet rs) throws SQLException {
+        var username = rs.getString("username");
+        var token = rs.getString("token");
+        return new AuthData(token, username);
     }
 
     private void executeUpdate(String statement, Object... params) throws DataAccessException {
