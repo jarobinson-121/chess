@@ -38,8 +38,9 @@ public class SQLUserDAO implements UserDAO {
     }
 
     @Override
-    public void clearUsers() {
-
+    public void clearUsers() throws DataAccessException {
+        var statement = "DELETE FROM users";
+        executeUpdate(statement);
     }
 
     private UserData readUser(ResultSet rs) throws SQLException {
