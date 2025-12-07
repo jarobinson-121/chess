@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -80,8 +81,21 @@ public class SQLGameDAO implements GameDAO {
     }
 
     @Override
-    public Collection<GameData> listGames() {
-        return List.of();
+    public Collection<GameData> listGames() throws DataAccessException {
+        Collection<GameData> games = new ArrayList<GameData>();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, gameState FROM games";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        games.add(readGame(rs));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("unable to read game(s) from database", e);
+        }
+        return games;
     }
 
     @Override
