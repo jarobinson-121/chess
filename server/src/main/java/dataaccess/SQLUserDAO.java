@@ -21,12 +21,32 @@ public class SQLUserDAO implements UserDAO {
 
     @Override
     public UserData getUserByUsername(String username) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, passwordHash, email FROM users WHERE username=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readUser(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("unable to read user from database", e);
+        }
         return null;
     }
 
     @Override
     public void clearUsers() {
 
+    }
+
+    private UserData readUser(ResultSet rs) throws SQLException {
+        var username = rs.getString("username");
+        var passwordHash = rs.getString("passwordHash");
+        var email = rs.getString("email");
+        return new UserData(username, passwordHash, email);
     }
 
     private void executeUpdate(String statement, Object... params) throws DataAccessException {
