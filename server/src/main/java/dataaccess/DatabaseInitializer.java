@@ -5,7 +5,7 @@ import exception.ResponseException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class SQLInitializer {
+public class DatabaseInitializer {
 
     private static final String[] createStatements = {
             """
