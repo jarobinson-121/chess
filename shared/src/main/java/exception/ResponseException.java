@@ -25,10 +25,6 @@ public class ResponseException extends Exception {
         return new Gson().toJson(Map.of("message", getMessage(), "status", code));
     }
 
-    public Code code() {
-        return code;
-    }
-
     public int toHttpStatusCode() {
         return switch (code) {
             case ServerError -> 500;
