@@ -1,7 +1,6 @@
 package dataaccess;
 
 import chess.ChessGame;
-import com.google.gson.Gson;
 import exception.ResponseException;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;
@@ -9,15 +8,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class SQLGameDAOTest {
 
     static SQLGameDAO gameDAO;
 
     @BeforeAll
     static void setUp() throws DataAccessException, ResponseException {
-        SQLInitializer.configureDatabase();
+        DatabaseInitializer.configureDatabase();
         gameDAO = new SQLGameDAO();
     }
 

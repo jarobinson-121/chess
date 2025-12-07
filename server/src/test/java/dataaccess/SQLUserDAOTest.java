@@ -7,15 +7,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class SQLUserDAOTest {
 
     static SQLUserDAO userDAO;
 
     @BeforeAll
     static void setUp() throws DataAccessException, ResponseException {
-        SQLInitializer.configureDatabase();
+        DatabaseInitializer.configureDatabase();
         userDAO = new SQLUserDAO();
     }
 
