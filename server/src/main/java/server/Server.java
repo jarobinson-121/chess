@@ -22,9 +22,19 @@ public class Server {
     private final Javalin javalin;
 
     public Server() {
-        userDAO = new MemoryUserDAO();
-        authDAO = new MemoryAuthDAO();
-        gameDAO = new MemoryGameDAO();
+
+        boolean sql = true;
+
+        if (sql) {
+            try {
+                SQLInitializer.configureDatabase();
+            } catch (DataAccessException | ResponseException ex) {
+                throw new RuntimeException("configureDatabase failed", ex);
+            }
+        }
+        userDAO = sql ? new SQLUserDAO() : new MemoryUserDAO();
+        authDAO = sql ? new SQLAuthDAO() : new MemoryAuthDAO();
+        gameDAO = sql ? new SQLGameDAO() : new MemoryGameDAO();
         registerService = new RegisterService(authDAO, userDAO);
         loginService = new LoginService(authDAO, userDAO);
         logoutService = new LogoutService(authDAO);
@@ -110,10 +120,14 @@ public class Server {
     }
 
     private void clearDB(Context ctx) throws ResponseException {
-        gameDAO.clearGames();
-        userDAO.clearUsers();
-        authDAO.clearAuths();
-        ctx.status(200);
+        try {
+            gameDAO.clearGames();
+            userDAO.clearUsers();
+            authDAO.clearAuths();
+            ctx.status(200);
+        } catch (DataAccessException ex) {
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
     }
 
     public void stop() {
