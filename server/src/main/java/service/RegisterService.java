@@ -7,6 +7,8 @@ import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
 
+import java.util.UUID;
+
 public class RegisterService {
     private AuthDAO authDAO;
     private UserDAO userDAO;
@@ -19,7 +21,7 @@ public class RegisterService {
     public AuthData createUser(String username, String password, String email) throws ResponseException {
         try {
             userDAO.addUser(new UserData(username, password, email));
-            return authDAO.createAuth(username);
+            return authDAO.createAuth(UUID.randomUUID().toString(), username);
         } catch (DataAccessException ex) {
             throw new ResponseException(ResponseException.Code.AlreadyTakenError, "already taken");
         }

@@ -7,6 +7,8 @@ import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import model.UserData;
 
+import java.util.UUID;
+
 public class LoginService {
     private AuthDAO authDAO;
     private UserDAO userDAO;
@@ -26,6 +28,6 @@ public class LoginService {
         if (user == null || user.username() == null || !user.password().equals(password)) {
             throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
         }
-        return authDAO.createAuth(username);
+        return authDAO.createAuth(UUID.randomUUID().toString(), username);
     }
 }
