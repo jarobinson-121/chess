@@ -20,6 +20,11 @@ class SQLGameDAOTest {
         gameDAO = new SQLGameDAO();
     }
 
+    @BeforeEach
+    void emptyDB() throws DataAccessException {
+        gameDAO.clearGames();
+    }
+
     @Test
     void createGamePositive() throws DataAccessException {
         var result = gameDAO.createGame("name");
@@ -35,12 +40,28 @@ class SQLGameDAOTest {
     void createGameNegative() throws DataAccessException {
 
         Assertions.assertThrows(DataAccessException.class, () -> {
-            gameDAO.createGame("");
+            gameDAO.createGame(null);
         });
     }
 
     @Test
-    void getGame() {
+    void getGamePositive() throws DataAccessException {
+        gameDAO.createGame("name");
+
+        var result = gameDAO.getGame(1);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(1, result.gameID());
+        Assertions.assertEquals("name", result.gameName());
+        Assertions.assertNull(result.blackUsername());
+        Assertions.assertNull(result.whiteUsername());
+    }
+
+    @Test
+    void getGameNegative() throws DataAccessException {
+        gameDAO.createGame("name");
+
+        Assertions.assertNull(gameDAO.getGame(0));
     }
 
     @Test
