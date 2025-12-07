@@ -68,10 +68,28 @@ class SQLAuthDAOTest {
     }
 
     @Test
-    void deleteAuth() {
+    void deleteAuthPositive() throws DataAccessException {
+        authDAO.createAuth("token", "username");
+
+        authDAO.deleteAuth("token");
+
+        var result = authDAO.getAuth("token");
+
+        Assertions.assertNull(result);
     }
 
     @Test
-    void clearAuths() {
+    void clearAuths() throws DataAccessException {
+        authDAO.createAuth("token", "username");
+        authDAO.createAuth("token1", "username1");
+        authDAO.createAuth("token2", "username2");
+        authDAO.createAuth("token3", "username3");
+
+        authDAO.clearAuths();
+
+        Assertions.assertNull(authDAO.getAuth("token"));
+        Assertions.assertNull(authDAO.getAuth("token1"));
+        Assertions.assertNull(authDAO.getAuth("token2"));
+        Assertions.assertNull(authDAO.getAuth("token3"));
     }
 }
