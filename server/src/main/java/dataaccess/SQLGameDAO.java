@@ -8,6 +8,7 @@ import model.GameData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
@@ -20,6 +21,9 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public GameData createGame(String gameName) throws DataAccessException {
+        if (gameName == null || gameName.isBlank()) {
+            throw new DataAccessException("Empty game name");
+        }
         int id = nextID++;
         var game = new ChessGame();
         var gameString = new Gson().toJson(game);
@@ -31,7 +35,30 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public GameData getGame(Integer gameID) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, gameState FROM games WHERE gameID=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameID);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readGame(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("unable to read game from database", e);
+        }
         return null;
+    }
+
+    private GameData readGame(ResultSet rs) throws SQLException {
+        var gameID = rs.getInt("gameID");
+        var whiteUsername = rs.getString("whiteUsername");
+        var blackUsername = rs.getString("blackUsername");
+        var gameName = rs.getString("gameName");
+        var stateString = rs.getString("gameState");
+        ChessGame gameState = new Gson().fromJson(stateString, ChessGame.class);
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, gameState);
     }
 
     @Override
@@ -45,8 +72,10 @@ public class SQLGameDAO implements GameDAO {
     }
 
     @Override
-    public void clearGames() {
-
+    public void clearGames() throws DataAccessException {
+        nextID = 1;
+        var statement = "DELETE FROM games";
+        executeUpdate(statement);
     }
 
     private void executeUpdate(String statement, Object... params) throws DataAccessException {
