@@ -19,6 +19,11 @@ class SQLUserDAOTest {
         userDAO = new SQLUserDAO();
     }
 
+    @BeforeEach
+    void emptyUserDB() throws DataAccessException {
+        userDAO.clearUsers();
+    }
+
     @Test
     void addUserPositive() throws DataAccessException {
         UserData user = new UserData("username", "password", "email@website");
@@ -42,7 +47,23 @@ class SQLUserDAOTest {
     }
 
     @Test
-    void getUserByUsername() {
+    void getUserByUsernamePositive() throws DataAccessException {
+        UserData user = new UserData("username", "password", "email@website");
+        userDAO.addUser(user);
+
+        UserData getUser = userDAO.getUserByUsername("username");
+        Assertions.assertNotNull(getUser);
+        Assertions.assertEquals("username", getUser.username());
+        Assertions.assertEquals("password", getUser.password());
+        Assertions.assertEquals("email@website", getUser.email());
+    }
+
+    @Test
+    void getNonexistentUserNegative() throws DataAccessException {
+        UserData user = new UserData("username", "password", "email@website");
+        userDAO.addUser(user);
+
+        Assertions.assertNull(userDAO.getUserByUsername("notAUser"));
     }
 
     @Test
