@@ -16,7 +16,7 @@ public class CreateGameService {
         this.gameDAO = game;
     }
 
-    public GameData createGame(String token, String gameName) throws ResponseException {
+    public GameData createGame(String token, String gameName) throws DataAccessException, ResponseException {
         AuthData user;
         try {
             user = authDAO.getAuth(token);
@@ -27,7 +27,7 @@ public class CreateGameService {
             throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
         }
         if (gameName == null) {
-            throw new ResponseException(ResponseException.Code.BadRequest, "Empty game name");
+            throw new DataAccessException("Empty game name");
         }
         return gameDAO.createGame(gameName);
     }
