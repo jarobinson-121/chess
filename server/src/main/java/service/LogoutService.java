@@ -17,7 +17,7 @@ public class LogoutService {
         try {
             auth = authDAO.getAuth(authToken);
         } catch (DataAccessException ex) {
-            throw new ResponseException(ResponseException.Code.Unauthorized, ex.getMessage());
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
         if (auth == null || auth.username() == null) {
             throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");

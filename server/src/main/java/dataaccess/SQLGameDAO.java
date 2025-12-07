@@ -36,6 +36,9 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public GameData getGame(Integer gameID) throws DataAccessException {
+        if (gameID == null) {
+            return null;
+        }
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, gameState FROM games WHERE gameID=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
@@ -44,12 +47,12 @@ public class SQLGameDAO implements GameDAO {
                     if (rs.next()) {
                         return readGame(rs);
                     }
+                    return null;
                 }
             }
         } catch (Exception e) {
             throw new DataAccessException("unable to read game from database", e);
         }
-        return null;
     }
 
     private GameData readGame(ResultSet rs) throws SQLException {

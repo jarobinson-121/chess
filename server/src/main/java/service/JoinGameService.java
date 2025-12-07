@@ -21,18 +21,22 @@ public class JoinGameService {
         try {
             user = authDAO.getAuth(token);
         } catch (DataAccessException ex) {
-            throw new ResponseException(ResponseException.Code.Unauthorized, ex.getMessage());
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
-        String uname = user.username();
+
         if (user == null) {
             throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
         }
+        String uname = user.username();
 
         GameData oldGame;
         try {
             oldGame = gameDAO.getGame(gameID);
         } catch (DataAccessException ex) {
-            throw new ResponseException(ResponseException.Code.BadRequest, ex.getMessage());
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
+        if (oldGame == null) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "Bad Request");
         }
         if (oldGame.blackUsername() != null && oldGame.whiteUsername() != null) {
             throw new ResponseException(ResponseException.Code.AlreadyTakenError, "Unauthorized");

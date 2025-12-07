@@ -21,13 +21,13 @@ public class CreateGameService {
         try {
             user = authDAO.getAuth(token);
         } catch (DataAccessException ex) {
-            throw new ResponseException(ResponseException.Code.Unauthorized, ex.getMessage());
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
         if (user == null) {
             throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
         }
-        if (gameName == null) {
-            throw new DataAccessException("Empty game name");
+        if (gameName == null || gameName.isBlank()) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "Bad Request");
         }
         return gameDAO.createGame(gameName);
     }

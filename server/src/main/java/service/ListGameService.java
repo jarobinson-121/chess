@@ -21,12 +21,12 @@ public class ListGameService {
         this.gameDAO = game;
     }
 
-    public HashMap<String, Object> listGames(String token) throws ResponseException {
+    public HashMap<String, Object> listGames(String token) throws DataAccessException, ResponseException {
         AuthData user;
         try {
             user = authDAO.getAuth(token);
         } catch (DataAccessException ex) {
-            throw new ResponseException(ResponseException.Code.Unauthorized, ex.getMessage());
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
         if (user == null) {
             throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");

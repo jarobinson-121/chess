@@ -23,7 +23,7 @@ public class LoginService {
         try {
             user = userDAO.getUserByUsername(username);
         } catch (DataAccessException ex) {
-            throw new ResponseException(ResponseException.Code.Unauthorized, ex.getMessage());
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
         if (user == null || user.username() == null || !user.password().equals(password)) {
             throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");

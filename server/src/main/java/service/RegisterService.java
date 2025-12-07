@@ -23,7 +23,10 @@ public class RegisterService {
             userDAO.addUser(new UserData(username, password, email));
             return authDAO.createAuth(UUID.randomUUID().toString(), username);
         } catch (DataAccessException ex) {
-            throw new ResponseException(ResponseException.Code.AlreadyTakenError, "already taken");
+            if (ex.getMessage().contains("unable to update database")) {
+                throw new ResponseException(ResponseException.Code.AlreadyTakenError, ex.getMessage());
+            }
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
 
     }
