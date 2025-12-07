@@ -18,8 +18,8 @@ public class SQLInitializer {
             """,
             """
             CREATE TABLE IF NOT EXISTS  auths (
-              `username` varchar(256) NOT NULL,
               `token` varchar(256) NOT NULL,
+              `username` varchar(256) NOT NULL,
               PRIMARY KEY (`token`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,
