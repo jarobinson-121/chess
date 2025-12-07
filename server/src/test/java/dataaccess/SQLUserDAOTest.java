@@ -67,6 +67,15 @@ class SQLUserDAOTest {
     }
 
     @Test
-    void clearUsers() {
+    void clearUsers() throws DataAccessException {
+        userDAO.addUser(new UserData("username0", "password", "email@website"));
+        userDAO.addUser(new UserData("username1", "password", "email@website"));
+        userDAO.addUser(new UserData("username2", "password", "email@website"));
+
+        userDAO.clearUsers();
+
+        Assertions.assertNull(userDAO.getUserByUsername("username0"));
+        Assertions.assertNull(userDAO.getUserByUsername("username1"));
+        Assertions.assertNull(userDAO.getUserByUsername("username2"));
     }
 }
