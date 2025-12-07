@@ -12,7 +12,7 @@ public class LogoutService {
         this.authDAO = authDAO;
     }
 
-    public void logoutUser(String authToken) throws ResponseException {
+    public void logoutUser(String authToken) throws DataAccessException, ResponseException {
         AuthData auth;
         try {
             auth = authDAO.getAuth(authToken);
