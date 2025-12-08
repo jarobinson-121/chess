@@ -3,6 +3,8 @@ package dataaccess;
 import java.sql.*;
 import java.util.Properties;
 
+import static java.sql.Types.NULL;
+
 public class DatabaseManager {
     private static String databaseName;
     private static String dbUsername;
@@ -73,5 +75,25 @@ public class DatabaseManager {
         var host = props.getProperty("db.host");
         var port = Integer.parseInt(props.getProperty("db.port"));
         connectionUrl = String.format("jdbc:mysql://%s:%d", host, port);
+    }
+
+    public static void executeUpdate(String statement, Object... params) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    if (param instanceof String p) {
+                        ps.setString(i + 1, p);
+                    } else if (param instanceof Integer p) {
+                        ps.setInt(i + 1, p);
+                    } else if (param == null) {
+                        ps.setNull(i + 1, NULL);
+                    }
+                }
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("unable to update database", e);
+        }
     }
 }

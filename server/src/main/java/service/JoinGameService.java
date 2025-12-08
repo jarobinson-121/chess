@@ -1,8 +1,8 @@
 package service;
 
-import dataaccess.DAOModels.AuthDAO;
+import dataaccess.daomodels.AuthDAO;
 import dataaccess.DataAccessException;
-import dataaccess.DAOModels.GameDAO;
+import dataaccess.daomodels.GameDAO;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;

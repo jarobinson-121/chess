@@ -1,9 +1,9 @@
 package service;
 
 import dataaccess.DataAccessException;
-import dataaccess.MemoryDAOs.MemoryAuthDAO;
-import dataaccess.MemoryDAOs.MemoryGameDAO;
-import dataaccess.MemoryDAOs.MemoryUserDAO;
+import dataaccess.memorydaos.MemoryAuthDAO;
+import dataaccess.memorydaos.MemoryGameDAO;
+import dataaccess.memorydaos.MemoryUserDAO;
 import exception.ResponseException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

@@ -1,6 +1,6 @@
 package dataaccess;
 
-import dataaccess.DAOModels.AuthDAO;
+import dataaccess.daomodels.AuthDAO;
 import model.AuthData;
 
 import java.sql.Connection;
@@ -14,7 +14,7 @@ public class SQLAuthDAO implements AuthDAO {
     @Override
     public AuthData createAuth(String token, String username) throws DataAccessException {
         var statement = "INSERT INTO auths (token, username) VALUES (?, ?)";
-        executeUpdate(statement, token, username);
+        DatabaseManager.executeUpdate(statement, token, username);
         return new AuthData(token, username);
     }
 
@@ -39,38 +39,18 @@ public class SQLAuthDAO implements AuthDAO {
     @Override
     public void deleteAuth(String token) throws DataAccessException {
         var statement = "DELETE FROM auths WHERE token=?";
-        executeUpdate(statement, token);
+        DatabaseManager.executeUpdate(statement, token);
     }
 
     @Override
     public void clearAuths() throws DataAccessException {
         var statement = "DELETE FROM auths";
-        executeUpdate(statement);
+        DatabaseManager.executeUpdate(statement);
     }
 
     private AuthData readAuth(ResultSet rs) throws SQLException {
         var username = rs.getString("username");
         var token = rs.getString("token");
         return new AuthData(token, username);
-    }
-
-    private void executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) {
-                        ps.setString(i + 1, p);
-                    } else if (param instanceof Integer p) {
-                        ps.setInt(i + 1, p);
-                    } else if (param == null) {
-                        ps.setNull(i + 1, NULL);
-                    }
-                }
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("unable to update database", e);
-        }
     }
 }

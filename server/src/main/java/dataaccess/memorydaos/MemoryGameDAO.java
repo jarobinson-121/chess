@@ -1,7 +1,7 @@
-package dataaccess.MemoryDAOs;
+package dataaccess.memorydaos;
 
 import chess.ChessGame;
-import dataaccess.DAOModels.GameDAO;
+import dataaccess.daomodels.GameDAO;
 import dataaccess.DataAccessException;
 import model.GameData;
 

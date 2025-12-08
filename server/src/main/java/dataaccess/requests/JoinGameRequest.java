@@ -1,4 +1,4 @@
-package dataaccess.Requests;
+package dataaccess.requests;
 
 import com.google.gson.Gson;
 

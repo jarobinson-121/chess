@@ -3,7 +3,7 @@ package dataaccess;
 import com.google.gson.Gson;
 
 import chess.ChessGame;
-import dataaccess.DAOModels.GameDAO;
+import dataaccess.daomodels.GameDAO;
 import model.GameData;
 
 import java.sql.Connection;
@@ -29,7 +29,7 @@ public class SQLGameDAO implements GameDAO {
         var gameString = new Gson().toJson(game);
         var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, gameState) VALUES " +
                 "(?, ?, ?, ?, ?)";
-        executeUpdate(statement, id, null, null, gameName, gameString);
+        DatabaseManager.executeUpdate(statement, id, null, null, gameName, gameString);
         return new GameData(id, null, null, gameName, game);
     }
 
@@ -74,7 +74,7 @@ public class SQLGameDAO implements GameDAO {
         String gameString = new Gson().toJson(newGame.game());
         var statement = "UPDATE games SET whiteUsername = ?, blackUsername = ?, gameName = ?, gameState = ?" +
                 "  WHERE gameID=?";
-        executeUpdate(statement,
+        DatabaseManager.executeUpdate(statement,
                 newGame.whiteUsername(),
                 newGame.blackUsername(),
                 newGame.gameName(),
@@ -104,26 +104,6 @@ public class SQLGameDAO implements GameDAO {
     public void clearGames() throws DataAccessException {
         nextID = 1;
         var statement = "DELETE FROM games";
-        executeUpdate(statement);
-    }
-
-    private void executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) {
-                        ps.setString(i + 1, p);
-                    } else if (param instanceof Integer p) {
-                        ps.setInt(i + 1, p);
-                    } else if (param == null) {
-                        ps.setNull(i + 1, NULL);
-                    }
-                }
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("unable to update database", e);
-        }
+        DatabaseManager.executeUpdate(statement);
     }
 }

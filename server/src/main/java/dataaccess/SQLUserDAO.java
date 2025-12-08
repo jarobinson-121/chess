@@ -1,6 +1,6 @@
 package dataaccess;
 
-import dataaccess.DAOModels.UserDAO;
+import dataaccess.daomodels.UserDAO;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -19,7 +19,7 @@ public class SQLUserDAO implements UserDAO {
         String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
 
         var statement = "INSERT INTO users (username, passwordHash, email) VALUES (?, ?, ?)";
-        executeUpdate(statement, user.username(), hashedPassword, user.email());
+        DatabaseManager.executeUpdate(statement, user.username(), hashedPassword, user.email());
         return user;
     }
 
@@ -44,7 +44,7 @@ public class SQLUserDAO implements UserDAO {
     @Override
     public void clearUsers() throws DataAccessException {
         var statement = "DELETE FROM users";
-        executeUpdate(statement);
+        DatabaseManager.executeUpdate(statement);
     }
 
     private UserData readUser(ResultSet rs) throws SQLException {
@@ -53,25 +53,5 @@ public class SQLUserDAO implements UserDAO {
         var email = rs.getString("email");
 
         return new UserData(username, passwordHash, email);
-    }
-
-    private void executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) {
-                        ps.setString(i + 1, p);
-                    } else if (param instanceof Integer p) {
-                        ps.setInt(i + 1, p);
-                    } else if (param == null) {
-                        ps.setNull(i + 1, NULL);
-                    }
-                }
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("unable to update database", e);
-        }
     }
 }

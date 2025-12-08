@@ -1,6 +1,6 @@
-package dataaccess.MemoryDAOs;
+package dataaccess.memorydaos;
 
-import dataaccess.DAOModels.AuthDAO;
+import dataaccess.daomodels.AuthDAO;
 import dataaccess.DataAccessException;
 import model.AuthData;
 

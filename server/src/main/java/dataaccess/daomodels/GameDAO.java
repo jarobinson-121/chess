@@ -1,4 +1,4 @@
-package dataaccess.DAOModels;
+package dataaccess.daomodels;
 
 import dataaccess.DataAccessException;
 import model.GameData;
