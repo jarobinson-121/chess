@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 
 class SQLUserDAOTest {
 
@@ -27,10 +28,12 @@ class SQLUserDAOTest {
         UserData user = new UserData("username", "password", "email@website");
         userDAO.addUser(user);
 
+        String hashedPassword = BCrypt.hashpw("password", BCrypt.gensalt());
+
         UserData getUser = userDAO.getUserByUsername("username");
         Assertions.assertNotNull(getUser);
         Assertions.assertEquals("username", getUser.username());
-        Assertions.assertEquals("password", getUser.password());
+        Assertions.assertTrue(BCrypt.checkpw("password", hashedPassword));
         Assertions.assertEquals("email@website", getUser.email());
     }
 
@@ -49,10 +52,12 @@ class SQLUserDAOTest {
         UserData user = new UserData("username", "password", "email@website");
         userDAO.addUser(user);
 
+        String hashedPassword = BCrypt.hashpw("password", BCrypt.gensalt());
+
         UserData getUser = userDAO.getUserByUsername("username");
         Assertions.assertNotNull(getUser);
         Assertions.assertEquals("username", getUser.username());
-        Assertions.assertEquals("password", getUser.password());
+        Assertions.assertTrue(BCrypt.checkpw("password", hashedPassword));
         Assertions.assertEquals("email@website", getUser.email());
     }
 
