@@ -26,8 +26,11 @@ public class LoginService {
         } catch (DataAccessException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
+        if (user == null || user.username() == null) {
+            throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
+        }
         String hashedUserPW = user.password();
-        if (user == null || user.username() == null || !BCrypt.checkpw(password, hashedUserPW)) {
+        if (!BCrypt.checkpw(password, hashedUserPW)) {
             throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
         }
         return authDAO.createAuth(UUID.randomUUID().toString(), username);
