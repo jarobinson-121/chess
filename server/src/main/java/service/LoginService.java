@@ -3,8 +3,8 @@ package service;
 import exception.ResponseException;
 import model.AuthData;
 import dataaccess.DataAccessException;
-import dataaccess.AuthDAO;
-import dataaccess.UserDAO;
+import dataaccess.DAOModels.AuthDAO;
+import dataaccess.DAOModels.UserDAO;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 

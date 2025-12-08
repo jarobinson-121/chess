@@ -1,5 +1,7 @@
-package dataaccess;
+package dataaccess.MemoryDAOs;
 
+import dataaccess.DAOModels.UserDAO;
+import dataaccess.DataAccessException;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 

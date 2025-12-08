@@ -1,5 +1,6 @@
 package dataaccess;
 
+import dataaccess.DAOModels.UserDAO;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 

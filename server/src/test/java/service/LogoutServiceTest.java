@@ -1,15 +1,11 @@
 package service;
 
 import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.MemoryDAOs.MemoryAuthDAO;
+import dataaccess.MemoryDAOs.MemoryUserDAO;
 import exception.ResponseException;
 import org.junit.jupiter.api.*;
-import passoff.model.TestCreateRequest;
 import passoff.model.TestUser;
-import server.Server;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class LogoutServiceTest {
 
