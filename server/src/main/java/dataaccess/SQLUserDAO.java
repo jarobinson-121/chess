@@ -74,12 +74,4 @@ public class SQLUserDAO implements UserDAO {
             throw new DataAccessException("unable to update database", e);
         }
     }
-
-    boolean verifyUser(String username, String providedClearTextPassword) throws DataAccessException {
-        UserData user = getUserByUsername(username);
-        String hashedPassword = user.password();
-
-        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
-    }
-
 }
