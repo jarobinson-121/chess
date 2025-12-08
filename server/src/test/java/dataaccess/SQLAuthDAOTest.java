@@ -13,7 +13,7 @@ class SQLAuthDAOTest {
 
     @BeforeAll
     static void setUp() throws DataAccessException, ResponseException {
-        DatabaseInitializer.configureDatabase();
+        DatabaseManager.configureDatabase();
         authDAO = new SQLAuthDAO();
     }
 

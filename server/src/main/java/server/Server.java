@@ -36,7 +36,7 @@ public class Server {
 
         if (sql) {
             try {
-                DatabaseInitializer.configureDatabase();
+                DatabaseManager.configureDatabase();
             } catch (DataAccessException | ResponseException ex) {
                 throw new RuntimeException("configureDatabase failed", ex);
             }

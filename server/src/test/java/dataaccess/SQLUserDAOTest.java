@@ -14,7 +14,7 @@ class SQLUserDAOTest {
 
     @BeforeAll
     static void setUp() throws DataAccessException, ResponseException {
-        DatabaseInitializer.configureDatabase();
+        DatabaseManager.configureDatabase();
         userDAO = new SQLUserDAO();
     }
 
