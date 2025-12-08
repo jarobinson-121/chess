@@ -14,10 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class LogoutServiceTest {
 
     private static TestUser existingUser;
-    private static TestUser newUser;
-    private static TestCreateRequest createRequest;
-    private static Server server;
-
 
     MemoryUserDAO userDAO = new MemoryUserDAO();
     MemoryAuthDAO authDAO = new MemoryAuthDAO();
