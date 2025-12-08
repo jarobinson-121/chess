@@ -22,14 +22,18 @@ class SQLAuthDAOTest {
         authDAO.clearAuths();
     }
 
-    @Test
-    void createAuthPositive() throws DataAccessException {
+    private void createGetAssertions() throws DataAccessException {
         var result = authDAO.createAuth("token", "username");
 
         Assertions.assertNotNull(result);
         Assertions.assertNotNull(result.authToken());
         Assertions.assertEquals("username", result.username());
         Assertions.assertEquals("token", result.authToken());
+    }
+
+    @Test
+    void createAuthPositive() throws DataAccessException {
+        createGetAssertions();
     }
 
     @Test
@@ -46,12 +50,7 @@ class SQLAuthDAOTest {
 
     @Test
     void getAuthPositive() throws DataAccessException {
-        var result = authDAO.createAuth("token", "username");
-
-        Assertions.assertNotNull(result);
-        Assertions.assertNotNull(result.authToken());
-        Assertions.assertEquals("username", result.username());
-        Assertions.assertEquals("token", result.authToken());
+        createGetAssertions();
     }
 
     @Test
