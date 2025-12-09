@@ -22,7 +22,8 @@ public class ServerFacadeTests {
     }
 
     @AfterAll
-    static void stopServer() {
+    static void stopServer() throws URISyntaxException, IOException, InterruptedException {
+        facade.clearDB();
         server.stop();
     }
 
@@ -34,8 +35,6 @@ public class ServerFacadeTests {
         Assertions.assertTrue(authdata.authToken().length() > 10);
         Assertions.assertNotEquals(authdata.authToken(), "FailedToke");
     }
-
-    // need to write the clear
 
 
     @Test
