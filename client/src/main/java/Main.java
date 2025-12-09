@@ -1,8 +1,16 @@
-import chess.*;
+import ui.loggedOutClient;
 
 public class Main {
     public static void main(String[] args) {
-        var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
-        System.out.println("♕ 240 Chess Client: " + piece);
+        String url = "8080";
+        if (args.length == 1) {
+            url = args[0];
+        }
+
+        try {
+            new loggedOutClient(Integer.valueOf(url));
+        } catch (Exception ex) {
+            System.out.printf("Failed to start server: %s%n", ex.getMessage());
+        }
     }
 }
