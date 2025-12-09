@@ -21,7 +21,7 @@ public class ListGameService {
         this.gameDAO = game;
     }
 
-    public HashMap<String, Object> listGames(String token) throws DataAccessException, ResponseException {
+    public HashMap<String, Collection<HashMap<String, String>>> listGames(String token) throws DataAccessException, ResponseException {
         AuthData user;
         try {
             user = authDAO.getAuth(token);
@@ -34,11 +34,11 @@ public class ListGameService {
 
         Collection<GameData> fullList = gameDAO.listGames();
 
-        ArrayList<HashMap<String, Object>> editedList = new ArrayList<>();
+        Collection<HashMap<String, String>> editedList = new ArrayList<>();
 
         for (GameData game : fullList) {
-            HashMap<String, Object> currGame = new HashMap<>();
-            currGame.put("gameID", game.gameID());
+            HashMap<String, String> currGame = new HashMap<>();
+            currGame.put("gameID", Integer.toString(game.gameID()));
             currGame.put("whiteUsername", game.whiteUsername());
             currGame.put("blackUsername", game.blackUsername());
             currGame.put("gameName", game.gameName());
@@ -46,7 +46,7 @@ public class ListGameService {
             editedList.add(currGame);
         }
 
-        HashMap<String, Object> output = new HashMap<>();
+        HashMap<String, Collection<HashMap<String, String>>> output = new HashMap<>();
         output.put("games", editedList);
 
         return output;
