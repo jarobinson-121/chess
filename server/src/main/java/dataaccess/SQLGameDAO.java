@@ -13,8 +13,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static java.sql.Types.NULL;
-
 public class SQLGameDAO implements GameDAO {
 
     int nextID = 1;

@@ -9,8 +9,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static java.sql.Types.NULL;
-
 public class SQLUserDAO implements UserDAO {
 
 
