@@ -1,7 +1,6 @@
 package ui;
 
 import exception.ResponseException;
-import model.UserData;
 import server.ServerFacade;
 
 import java.io.IOException;
@@ -9,7 +8,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class loggedOutClient {
+public class LoggedOutClient {
 
     public enum State {
         SIGNEDOUT,
@@ -17,15 +16,15 @@ public class loggedOutClient {
     }
 
     private final ServerFacade server;
-    private State state;
+    public State state;
 
-    public loggedOutClient(int url) {
+    public LoggedOutClient(int url) {
         server = new ServerFacade(url);
         state = State.SIGNEDOUT;
     }
 
     public void run() {
-        System.out.println("Welcome to 240 Chess. Type Help to get started.");
+        System.out.println("Welcome to 240 Chess. Type 'help' to get started.");
         System.out.print(help());
 
         Scanner scanner = new Scanner(System.in);
@@ -36,7 +35,7 @@ public class loggedOutClient {
 
             try {
                 result = eval(line);
-                System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + result);
+                System.out.print(result);
             } catch (Exception ex) {
                 var msg = ex.toString();
                 System.out.print(msg);
@@ -76,11 +75,11 @@ public class loggedOutClient {
                 throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
             }
         }
-        return null;
+        throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD> <EMAIL>");
     }
 
     public String login(String... params) throws ResponseException {
-        if (params.length == 2) {
+        if (params.length == 3) {
             try {
                 server.login(params);
                 state = State.SIGNEDIN;
