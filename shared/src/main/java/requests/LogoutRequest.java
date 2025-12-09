@@ -1,11 +1,10 @@
-package dataaccess.requests;
+package requests;
 
 import com.google.gson.*;
 
-public record CreateGameRequest(String playerColor, String gameName) {
+public record LogoutRequest(String authToken) {
 
     public String toString() {
         return new Gson().toJson(this);
     }
-
 }

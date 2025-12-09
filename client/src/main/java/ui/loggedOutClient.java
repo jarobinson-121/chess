@@ -56,7 +56,7 @@ public class loggedOutClient {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-//                case "login" -> login(params);
+                case "login" -> login(params);
                 case "register" -> register(params);
                 case "quit" -> "quit";
                 default -> help();
@@ -79,6 +79,18 @@ public class loggedOutClient {
         return null;
     }
 
+    public String login(String... params) throws ResponseException {
+        if (params.length == 2) {
+            try {
+                server.login(params);
+                state = State.SIGNEDIN;
+                return String.format("You logged in as %s", params[0]);
+            } catch (URISyntaxException | IOException | InterruptedException ex) {
+                throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            }
+        }
+        return null;
+    }
 
     public String help() {
         return """
