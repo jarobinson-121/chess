@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
+import requests.CreateGameRequest;
 import requests.LoginRequest;
 import requests.LogoutRequest;
 
@@ -52,6 +53,24 @@ public class ServerFacade {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(serverUrl + "/session"))
                 .POST(HttpRequest.BodyPublishers.ofString(loginJson))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        return responseChecker(response);
+    }
+
+    public String createGame(String token, String... params) throws
+            URISyntaxException,
+            IOException,
+            InterruptedException,
+            ResponseException {
+        CreateGameRequest createGameRequest = new CreateGameRequest(params[0]);
+        String createGameJson = new Gson().toJson(createGameRequest);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(serverUrl + "/game"))
+                .header("authorization", token)
+                .POST(HttpRequest.BodyPublishers.ofString(createGameJson))
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
