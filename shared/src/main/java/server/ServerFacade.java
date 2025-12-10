@@ -5,6 +5,7 @@ import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
 import requests.LoginRequest;
+import requests.LogoutRequest;
 
 import java.io.IOException;
 import java.net.URI;
@@ -21,7 +22,7 @@ public class ServerFacade {
         this.serverUrl = "http://localhost:" + port;
     }
 
-    public AuthData register(String... params) throws
+    public String register(String... params) throws
             URISyntaxException,
             IOException,
             InterruptedException,
@@ -41,7 +42,7 @@ public class ServerFacade {
         return responseChecker(response);
     }
 
-    public AuthData login(String... params) throws
+    public String login(String... params) throws
             URISyntaxException,
             IOException,
             InterruptedException,
@@ -58,13 +59,28 @@ public class ServerFacade {
         return responseChecker(response);
     }
 
-    private AuthData responseChecker(HttpResponse<String> response) throws ResponseException {
+    public String logout(String token) throws
+            URISyntaxException,
+            IOException,
+            InterruptedException,
+            ResponseException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(serverUrl + "/session"))
+                .header("authorization", token)
+                .DELETE()
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        return responseChecker(response);
+    }
+
+    private String responseChecker(HttpResponse<String> response) throws ResponseException {
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
-            System.out.println(response.body());
-            AuthData responseAuth = new Gson().fromJson(response.body(), AuthData.class);
-            return responseAuth;
+//            System.out.println(response.body());
+            return response.body();
         } else {
-            System.out.println("Error: received status code " + response.statusCode());
+//            System.out.println("Error: received status code " + response.statusCode());
             throw new ResponseException(ResponseException.fromHttpStatusCode(response.statusCode()), "Authorization failed");
         }
     }
