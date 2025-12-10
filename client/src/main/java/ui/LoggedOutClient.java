@@ -29,15 +29,14 @@ public class LoggedOutClient {
     }
 
     public String login(String... params) throws ResponseException {
-        if (params.length == 3) {
+        if (params.length == 2) {
             try {
-                server.login(params);
-                return String.format("You logged in as %s", params[0]);
+                return server.login(params);
             } catch (URISyntaxException | IOException | InterruptedException ex) {
                 throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
             }
         }
-        return null;
+        throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD>");
     }
 
     public String eval(String input) throws ResponseException {
