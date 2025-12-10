@@ -46,12 +46,12 @@ public class JoinGameService {
         String whiteUname = oldGame.whiteUsername();
         if (color == null) {
             throw new ResponseException(ResponseException.Code.BadRequest, "Color field missing");
-        } else if ("WHITE".equals(color)) {
+        } else if ("white".equals(color.toLowerCase())) {
             if (whiteUname != null) {
                 throw new ResponseException(ResponseException.Code.AlreadyTakenError, "Color already taken");
             }
             whiteUname = uname;
-        } else if ("BLACK".equals(color)) {
+        } else if ("black".equals(color.toLowerCase())) {
             if (blackUname != null) {
                 throw new ResponseException(ResponseException.Code.AlreadyTakenError, "Color already taken");
             }
