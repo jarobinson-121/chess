@@ -54,18 +54,18 @@ public class MainClient {
                     }
 
                 } else if (state == State.SIGNEDIN) {
+                    System.out.print(loggedInClient.help());
                     if (line.equals("help")) {
                         System.out.print(loggedInClient.help());
                     } else if (line.equals("quit")) {
                         result = line;
                     } else {
                         result = loggedInClient.eval(line, token);
+                        System.out.print(result);
                         if (result.equals("Logged out")) {
                             state = State.SIGNEDOUT;
                         }
-                        System.out.print(result);
                     }
-
                 }
             } catch (Exception ex) {
                 var msg = ex.toString();
