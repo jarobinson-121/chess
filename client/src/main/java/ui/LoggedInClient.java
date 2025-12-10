@@ -21,7 +21,7 @@ public class LoggedInClient {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-//                case "create" -> createGame(params);
+                case "create" -> createGame(token, params);
 //                case "list" -> list(params);
 //                case "join" -> joinGame(params);
 //                case "observe" -> observeGame(params);
@@ -31,6 +31,14 @@ public class LoggedInClient {
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
+        }
+    }
+
+    public String createGame(String token, String... params) throws ResponseException {
+        try {
+            return server.createGame(token, params);
+        } catch (URISyntaxException | IOException | InterruptedException ex) {
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
     }
 
