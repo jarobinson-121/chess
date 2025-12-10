@@ -1,14 +1,13 @@
-import ui.loggedOutClient;
+import ui.LoggedOutClient;
+import ui.MainClient;
 
 public class Main {
     public static void main(String[] args) {
         String url = "8080";
-        if (args.length == 1) {
-            url = args[0];
-        }
 
         try {
-            new loggedOutClient(Integer.valueOf(url));
+            MainClient mainClient = new MainClient(Integer.parseInt(url));
+            mainClient.run();
         } catch (Exception ex) {
             System.out.printf("Failed to start server: %s%n", ex.getMessage());
         }
