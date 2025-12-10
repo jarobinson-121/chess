@@ -1,6 +1,8 @@
 package client;
 
+import com.google.gson.Gson;
 import exception.ResponseException;
+import model.AuthData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import server.ServerFacade;
@@ -17,8 +19,8 @@ public class ServerFacadeTests {
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(8080);
-        facade = new ServerFacade(8080);
+        var port = server.run(9000);
+        facade = new ServerFacade(9000);
         System.out.println("Started test HTTP server on " + port);
     }
 
@@ -39,11 +41,12 @@ public class ServerFacadeTests {
             IOException,
             InterruptedException,
             ResponseException {
-        var authdata = facade.register("username", "password", "email");
+        var result = facade.register("username", "password", "email");
+        AuthData authData = new Gson().fromJson(result, AuthData.class);
 
-        Assertions.assertNotNull(authdata.authToken());
-        Assertions.assertTrue(authdata.authToken().length() > 10);
-        Assertions.assertNotEquals(authdata.authToken(), "FailedToke");
+        Assertions.assertNotNull(authData.authToken());
+        Assertions.assertTrue(authData.authToken().length() > 10);
+        Assertions.assertNotEquals(authData.authToken(), "FailedToke");
     }
 
     @Test
@@ -61,9 +64,10 @@ public class ServerFacadeTests {
             ResponseException {
         facade.register("username", "password", "email");
         var loginResult = facade.login("username", "password");
+        AuthData authData = new Gson().fromJson(loginResult, AuthData.class);
 
-        Assertions.assertNotNull(loginResult.authToken());
-        Assertions.assertTrue(loginResult.authToken().length() > 10);
+        Assertions.assertNotNull(authData.authToken());
+        Assertions.assertTrue(authData.authToken().length() > 10);
     }
 
     @Test
@@ -73,7 +77,7 @@ public class ServerFacadeTests {
             InterruptedException,
             ResponseException {
         facade.register("username", "password", "email");
-        
+
         Assertions.assertThrows(ResponseException.class, () -> {
             facade.login("username", "badPassword");
         });
