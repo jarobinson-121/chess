@@ -6,10 +6,13 @@ import dataaccess.daomodels.GameDAO;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
+import model.GameListResult;
+import model.GameSummary;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class ListGameService {
@@ -21,7 +24,7 @@ public class ListGameService {
         this.gameDAO = game;
     }
 
-    public HashMap<String, Collection<HashMap<String, String>>> listGames(String token) throws DataAccessException, ResponseException {
+    public GameListResult listGames(String token) throws DataAccessException, ResponseException {
         AuthData user;
         try {
             user = authDAO.getAuth(token);
@@ -34,21 +37,17 @@ public class ListGameService {
 
         Collection<GameData> fullList = gameDAO.listGames();
 
-        Collection<HashMap<String, String>> editedList = new ArrayList<>();
+        List<GameSummary> summaryList = new ArrayList<>();
 
         for (GameData game : fullList) {
-            HashMap<String, String> currGame = new HashMap<>();
-            currGame.put("gameID", Integer.toString(game.gameID()));
-            currGame.put("whiteUsername", game.whiteUsername());
-            currGame.put("blackUsername", game.blackUsername());
-            currGame.put("gameName", game.gameName());
+            var newSummary = new GameSummary(game.gameID(),
+                    game.whiteUsername(),
+                    game.blackUsername(),
+                    game.gameName());
 
-            editedList.add(currGame);
+            summaryList.add(newSummary);
         }
 
-        HashMap<String, Collection<HashMap<String, String>>> output = new HashMap<>();
-        output.put("games", editedList);
-
-        return output;
+        return new GameListResult(summaryList);
     }
 }
