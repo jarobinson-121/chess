@@ -1,53 +1,44 @@
 package ui;
 
+import com.google.gson.Gson;
 import exception.ResponseException;
+import model.AuthData;
 import server.ServerFacade;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.Scanner;
 
 public class LoggedOutClient {
 
-    public enum State {
-        SIGNEDOUT,
-        SIGNEDIN
-    }
-
     private final ServerFacade server;
-    public State state;
 
-    public LoggedOutClient(int url) {
-        server = new ServerFacade(url);
-        state = State.SIGNEDOUT;
+    public LoggedOutClient(ServerFacade server) {
+        this.server = server;
     }
 
-    public void run() {
-        System.out.println("Welcome to 240 Chess. Type 'help' to get started.");
-        System.out.print(help());
-
-        Scanner scanner = new Scanner(System.in);
-        var result = "";
-        while (!result.equals("quit")) {
-            printPrompt();
-            String line = scanner.nextLine();
-
+    public String register(String... params) throws ResponseException {
+        if (params.length == 3) {
             try {
-                result = eval(line);
-                System.out.print(result);
-            } catch (Exception ex) {
-                var msg = ex.toString();
-                System.out.print(msg);
+                return server.register(params);
+            } catch (URISyntaxException | IOException | InterruptedException ex) {
+                throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
             }
         }
-        System.out.println();
+        throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD> <EMAIL>");
     }
 
-    private void printPrompt() {
-        System.out.print("\n" + ">>> " + EscapeSequences.SET_TEXT_COLOR_GREEN);
+    public String login(String... params) throws ResponseException {
+        if (params.length == 3) {
+            try {
+                server.login(params);
+                return String.format("You logged in as %s", params[0]);
+            } catch (URISyntaxException | IOException | InterruptedException ex) {
+                throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            }
+        }
+        return null;
     }
-
 
     public String eval(String input) throws ResponseException {
         try {
@@ -63,32 +54,6 @@ public class LoggedOutClient {
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
-    }
-
-    public String register(String... params) throws ResponseException {
-        if (params.length == 3) {
-            try {
-                server.register(params);
-                state = State.SIGNEDIN;
-                return String.format("You signed in as %s", params[0]);
-            } catch (URISyntaxException | IOException | InterruptedException ex) {
-                throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
-            }
-        }
-        throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD> <EMAIL>");
-    }
-
-    public String login(String... params) throws ResponseException {
-        if (params.length == 3) {
-            try {
-                server.login(params);
-                state = State.SIGNEDIN;
-                return String.format("You logged in as %s", params[0]);
-            } catch (URISyntaxException | IOException | InterruptedException ex) {
-                throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
-            }
-        }
-        return null;
     }
 
     public String help() {
