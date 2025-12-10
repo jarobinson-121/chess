@@ -3,8 +3,10 @@ package server;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import requests.CreateGameRequest;
+import requests.JoinGameRequest;
 import requests.LoginRequest;
 import requests.LogoutRequest;
 
@@ -14,6 +16,10 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ServerFacade {
     private final String serverUrl;
@@ -78,6 +84,41 @@ public class ServerFacade {
         return responseChecker(response);
     }
 
+    public String listGames(String token) throws
+            URISyntaxException,
+            IOException,
+            InterruptedException,
+            ResponseException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(serverUrl + "/game"))
+                .header("authorization", token)
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        return responseChecker(response);
+    }
+
+    public String joinGame(String token, String... params) throws
+            URISyntaxException,
+            IOException,
+            InterruptedException,
+            ResponseException {
+        JoinGameRequest joinGameRequest = new JoinGameRequest(params[1], Integer.parseInt(params[0]));
+        String joinJson = new Gson().toJson(joinGameRequest);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(serverUrl + "/game"))
+                .header("authorization", token)
+                .PUT(HttpRequest.BodyPublishers.ofString(joinJson))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        return responseChecker(response);
+
+    }
+
     public String logout(String token) throws
             URISyntaxException,
             IOException,
@@ -100,7 +141,7 @@ public class ServerFacade {
             return response.body();
         } else {
 //            System.out.println("Error: received status code " + response.statusCode());
-            throw new ResponseException(ResponseException.fromHttpStatusCode(response.statusCode()), "Authorization failed");
+            throw new ResponseException(ResponseException.fromHttpStatusCode(response.statusCode()), "Server Error");
         }
     }
 
