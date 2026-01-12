@@ -1,5 +1,8 @@
 package chess;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -8,8 +11,14 @@ package chess;
  */
 public class ChessBoard {
 
+    private final ChessPiece[][] chessBoard;
+    private ChessPiece whiteKing;
+    private ChessPiece blackKing;
+
     public ChessBoard() {
-        
+        this.chessBoard = new ChessPiece[8][8];
+        this.whiteKing = null;
+        this.blackKing = null;
     }
 
     /**
@@ -19,7 +28,6 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -30,7 +38,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        throw new RuntimeException("Not implemented");
+        return chessBoard[position.getColumn() - 1][position.getRow() - 1];
     }
 
     /**
@@ -39,5 +47,27 @@ public class ChessBoard {
      */
     public void resetBoard() {
         throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public String toString() {
+        return "ChessBoard{" +
+                "chessBoard=" + Arrays.toString(chessBoard) +
+                ", whiteKing=" + whiteKing +
+                ", blackKing=" + blackKing +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ChessBoard that)) {
+            return false;
+        }
+        return Objects.deepEquals(chessBoard, that.chessBoard) && Objects.equals(whiteKing, that.whiteKing) && Objects.equals(blackKing, that.blackKing);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(Arrays.deepHashCode(chessBoard), whiteKing, blackKing);
     }
 }
