@@ -3,6 +3,9 @@ package chess;
 import java.util.Arrays;
 import java.util.Objects;
 
+import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -30,9 +33,9 @@ public class ChessBoard {
     public void addPiece(ChessPosition position, ChessPiece piece) {
         chessBoard[position.getRow() - 1][position.getColumn()] = piece;
         if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING) {
-            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            if (piece.getTeamColor() == WHITE) {
                 whiteKing = position;
-            } else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
+            } else if (piece.getTeamColor() == BLACK) {
                 blackKing = position;
             }
         }
@@ -72,7 +75,10 @@ public class ChessBoard {
         }
 
         for (int i = 0; i < 9; i++) {
-            //TODO: use addPiece to place all of the pieces once you've built addPiece
+            addPiece(new ChessPosition(1, i), new ChessPiece(WHITE, pieceOrder[i]));
+            addPiece(new ChessPosition(2, i), new ChessPiece(WHITE, ChessPiece.PieceType.PAWN));
+            addPiece(new ChessPosition(7, i), new ChessPiece(BLACK, ChessPiece.PieceType.PAWN));
+            addPiece(new ChessPosition(8, i), new ChessPiece(BLACK, pieceOrder[i]));
         }
     }
 
