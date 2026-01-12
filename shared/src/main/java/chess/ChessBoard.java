@@ -31,7 +31,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        chessBoard[position.getRow() - 1][position.getColumn()] = piece;
+        chessBoard[position.getRow() - 1][position.getColumn() - 1] = piece;
         if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING) {
             if (piece.getTeamColor() == WHITE) {
                 whiteKing = position;
@@ -61,8 +61,8 @@ public class ChessBoard {
                 ChessPiece.PieceType.ROOK,
                 ChessPiece.PieceType.KNIGHT,
                 ChessPiece.PieceType.BISHOP,
-                ChessPiece.PieceType.KING,
                 ChessPiece.PieceType.QUEEN,
+                ChessPiece.PieceType.KING,
                 ChessPiece.PieceType.BISHOP,
                 ChessPiece.PieceType.KNIGHT,
                 ChessPiece.PieceType.ROOK
@@ -74,11 +74,11 @@ public class ChessBoard {
             }
         }
 
-        for (int i = 0; i < 9; i++) {
-            addPiece(new ChessPosition(1, i), new ChessPiece(WHITE, pieceOrder[i]));
+        for (int i = 1; i < 9; i++) {
+            addPiece(new ChessPosition(1, i), new ChessPiece(WHITE, pieceOrder[i - 1]));
             addPiece(new ChessPosition(2, i), new ChessPiece(WHITE, ChessPiece.PieceType.PAWN));
             addPiece(new ChessPosition(7, i), new ChessPiece(BLACK, ChessPiece.PieceType.PAWN));
-            addPiece(new ChessPosition(8, i), new ChessPiece(BLACK, pieceOrder[i]));
+            addPiece(new ChessPosition(8, i), new ChessPiece(BLACK, pieceOrder[i - 1]));
         }
     }
 
