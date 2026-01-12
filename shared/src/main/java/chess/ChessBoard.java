@@ -12,8 +12,8 @@ import java.util.Objects;
 public class ChessBoard {
 
     private final ChessPiece[][] chessBoard;
-    private ChessPiece whiteKing;
-    private ChessPiece blackKing;
+    private ChessPosition whiteKing;
+    private ChessPosition blackKing;
 
     public ChessBoard() {
         this.chessBoard = new ChessPiece[8][8];
@@ -28,6 +28,14 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
+        chessBoard[position.getRow() - 1][position.getColumn()] = piece;
+        if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING) {
+            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                whiteKing = position;
+            } else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
+                blackKing = position;
+            }
+        }
     }
 
     /**
@@ -46,7 +54,26 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        ChessPiece.PieceType[] pieceOrder = {
+                ChessPiece.PieceType.ROOK,
+                ChessPiece.PieceType.KNIGHT,
+                ChessPiece.PieceType.BISHOP,
+                ChessPiece.PieceType.KING,
+                ChessPiece.PieceType.QUEEN,
+                ChessPiece.PieceType.BISHOP,
+                ChessPiece.PieceType.KNIGHT,
+                ChessPiece.PieceType.ROOK
+        };
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                chessBoard[i][j] = null;
+            }
+        }
+
+        for (int i = 0; i < 9; i++) {
+            //TODO: use addPiece to place all of the pieces once you've built addPiece
+        }
     }
 
     @Override
