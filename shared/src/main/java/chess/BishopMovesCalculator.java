@@ -17,6 +17,5 @@ public class BishopMovesCalculator extends BaseMovesAbstract {
             }
         }
         return moves;
-        //I figured it out. Much cleaner
     }
 }
