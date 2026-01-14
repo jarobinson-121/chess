@@ -13,6 +13,9 @@ public abstract class BaseMovesAbstract implements PieceMovesCalculator {
             return;
         }
         ChessPosition movePos = new ChessPosition(moveRow, moveCol);
+        if (movePos == pos) {
+            return;
+        }
         if (board.getPiece(movePos) == null) {
             moves.add(new ChessMove(pos, movePos, null));
         } else {
