@@ -63,6 +63,9 @@ public class ChessPiece {
             case ROOK:
                 RookMovesCalculator rookMoves = new RookMovesCalculator();
                 return rookMoves.pieceMoves(board, myPosition);
+            case BISHOP:
+                BishopMovesCalculator bishopMoves = new BishopMovesCalculator();
+                return bishopMoves.pieceMoves(board, myPosition);
             default:
                 return null;
         }
