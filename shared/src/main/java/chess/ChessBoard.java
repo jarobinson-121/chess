@@ -49,7 +49,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return chessBoard[position.getColumn() - 1][position.getRow() - 1];
+        return chessBoard[position.getRow() - 1][position.getColumn() - 1];
     }
 
     /**
