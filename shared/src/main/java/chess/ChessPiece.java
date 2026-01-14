@@ -57,10 +57,12 @@ public class ChessPiece {
             case KING:
                 KingMoveCalculator kingMoves = new KingMoveCalculator();
                 return kingMoves.pieceMoves(board, myPosition);
-//            defaul:
-//            return null;
+            case QUEEN:
+                QueenMovesCalculator queenMoves = new QueenMovesCalculator();
+                return queenMoves.pieceMoves(board, myPosition);
+            default:
+                return null;
         }
-        return null;
     }
 
     @Override
