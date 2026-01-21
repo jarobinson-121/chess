@@ -96,7 +96,9 @@ public class ChessBoard {
         if (!(o instanceof ChessBoard that)) {
             return false;
         }
-        return Objects.deepEquals(chessBoard, that.chessBoard) && Objects.equals(whiteKing, that.whiteKing) && Objects.equals(blackKing, that.blackKing);
+        return Objects.deepEquals(chessBoard, that.chessBoard)
+                && Objects.equals(whiteKing, that.whiteKing)
+                && Objects.equals(blackKing, that.blackKing);
     }
 
     @Override
