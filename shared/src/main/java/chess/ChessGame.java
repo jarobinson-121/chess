@@ -116,6 +116,25 @@ public class ChessGame {
         return gameBoard;
     }
 
+    public boolean testMove(ChessMove move) {
+
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        ChessPiece mover = gameBoard.getPiece(start);
+        ChessPiece capture = gameBoard.getPiece(end);
+        boolean validMove = true;
+
+        doTestMove(move);
+
+        if (isInCheck(mover.getTeamColor())) {
+            validMove = false;
+        }
+
+        undoMove(start, mover, end, capture);
+
+        return validMove;
+    }
+
     public void doTestMove(ChessMove move) {
         ChessPiece.PieceType promo = move.getPromotionPiece();
         ChessPosition start = move.getStartPosition();
@@ -133,6 +152,11 @@ public class ChessGame {
             gameBoard.addPiece(start, null);
 
         }
+    }
+
+    public void undoMove(ChessPosition start, ChessPiece mover, ChessPosition end, ChessPiece capture) {
+        gameBoard.addPiece(start, mover);
+        gameBoard.addPiece(end, capture);
     }
 
     @Override
