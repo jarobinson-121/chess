@@ -55,7 +55,22 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = gameBoard.getPiece(startPosition);
+
+        if (piece != null) {
+            Collection<ChessMove> moves = piece.pieceMoves(gameBoard, startPosition);
+            Iterator<ChessMove> iterator = moves.iterator();
+
+            while (iterator.hasNext()) {
+                ChessMove currMove = iterator.next();
+
+                if (!testMove(currMove)) {
+                    iterator.remove();
+                }
+            }
+            return moves;
+        }
+        return null;
     }
 
     /**
