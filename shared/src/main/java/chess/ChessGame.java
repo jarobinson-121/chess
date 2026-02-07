@@ -90,7 +90,15 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition pos = new ChessPosition(i, j);
+                if (attacksKing(teamColor, pos)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
