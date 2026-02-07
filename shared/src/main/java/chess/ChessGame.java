@@ -116,6 +116,25 @@ public class ChessGame {
         return gameBoard;
     }
 
+    public void doTestMove(ChessMove move) {
+        ChessPiece.PieceType promo = move.getPromotionPiece();
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        ChessPiece piece = gameBoard.getPiece(start);
+        TeamColor moverColor = piece.getTeamColor();
+
+        if (piece != null) {
+            if (promo == null) {
+                gameBoard.addPiece(end, piece);
+            } else {
+                gameBoard.addPiece(end, new ChessPiece(moverColor, promo));
+            }
+
+            gameBoard.addPiece(start, null);
+
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof ChessGame chessGame)) {
