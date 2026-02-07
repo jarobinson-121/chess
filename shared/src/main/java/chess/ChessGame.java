@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -114,6 +115,21 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return gameBoard;
+    }
+
+    public boolean attacksKing(TeamColor color, ChessPosition pos) {
+        ChessPiece piece = gameBoard.getPiece(pos);
+        if (piece != null && piece.getTeamColor() != color) {
+            Collection<ChessMove> currPieceMoves = piece.pieceMoves(gameBoard, pos);
+            Iterator<ChessMove> iterator = currPieceMoves.iterator();
+            while (iterator.hasNext()) {
+                ChessMove currMove = iterator.next();
+                if (currMove.getEndPosition().equals(gameBoard.getKingPos(color))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public boolean testMove(ChessMove move) {
