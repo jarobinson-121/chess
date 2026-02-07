@@ -82,6 +82,14 @@ public class ChessBoard {
         }
     }
 
+    public ChessPosition getKingPos(ChessGame.TeamColor color) {
+        if (color == WHITE) {
+            return whiteKing;
+        } else {
+            return blackKing;
+        }
+    }
+
     @Override
     public String toString() {
         return "ChessBoard{" +
