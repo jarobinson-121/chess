@@ -1,0 +1,30 @@
+package dataaccess.memory;
+
+import dataaccess.DataAccessException;
+import dataaccess.daomodels.AuthDao;
+import models.AuthData;
+
+import java.util.HashMap;
+import java.util.UUID;
+
+public class MemoryAuthDao implements AuthDao {
+
+    private HashMap<String, AuthData> authList = new HashMap<>();
+
+    public AuthData createAuth(String username) {
+        AuthData newAuth = new AuthData(generateToken(), username);
+        authList.put(newAuth.authToken(), newAuth);
+        return newAuth;
+    }
+
+    private String generateToken() {
+        return UUID.randomUUID().toString();
+    }
+
+    @Override
+    public String toString() {
+        return "MemoryAuthDao{" +
+                "authList=" + authList +
+                '}';
+    }
+}
