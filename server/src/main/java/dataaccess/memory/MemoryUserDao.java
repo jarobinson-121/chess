@@ -17,4 +17,12 @@ public class MemoryUserDao implements UserDao {
         userList.put(user.username(), user);
         return user;
     }
+
+    public UserData getUser(String username) {
+        return null;
+    }
+
+    public void clearUsers() {
+
+    }
 }
