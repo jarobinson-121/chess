@@ -18,6 +18,7 @@ public class LogoutHandler implements Handler {
         if (token == null) {
             throw new ResponseException(ResponseException.Code.BadRequest, "Bad Request");
         }
-
+        logoutService.logoutUser(token);
+        ctx.status(200).result("");
     }
 }
