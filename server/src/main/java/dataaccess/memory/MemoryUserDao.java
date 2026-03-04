@@ -18,8 +18,11 @@ public class MemoryUserDao implements UserDao {
         return user;
     }
 
-    public UserData getUser(String username) {
-        return null;
+    public UserData getUser(String username) throws DataAccessException {
+        if (!userList.containsKey(username)) {
+            throw new DataAccessException("No user found");
+        }
+        return userList.get(username);
     }
 
     public void clearUsers() {
