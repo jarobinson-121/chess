@@ -27,7 +27,7 @@ public class LoginService {
         if (user == null || user.username() == null) {
             throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
         }
-        if (user.password() != password) {
+        if (!user.password().equals(password)) {
             throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
         }
         return authDao.createAuth(username);
