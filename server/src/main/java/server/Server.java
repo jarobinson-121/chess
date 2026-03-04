@@ -8,10 +8,12 @@ import dataaccess.memory.MemoryGameDao;
 import dataaccess.memory.MemoryUserDao;
 import exception.ResponseException;
 import handlers.LoginHandler;
+import handlers.LogoutHandler;
 import handlers.RegisterHandler;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.LoginService;
+import service.LogoutService;
 import service.RegisterService;
 
 public class Server {
@@ -22,6 +24,7 @@ public class Server {
     private final GameDao gameDao;
     private final RegisterService registerService;
     private final LoginService loginService;
+    private final LogoutService logoutService;
 
     public Server() {
         this.userDao = new MemoryUserDao();
@@ -29,11 +32,13 @@ public class Server {
         this.gameDao = new MemoryGameDao();
         this.registerService = new RegisterService(authDao, userDao);
         this.loginService = new LoginService(authDao, userDao);
+        this.logoutService = new LogoutService(authDao);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
 
                 .post("/user", new RegisterHandler(registerService))
                 .post("/session", new LoginHandler(loginService))
+                .delete("/session", new LogoutHandler(logoutService))
                 .exception(ResponseException.class, this::exceptionHandler);
 
         // Register your endpoints and exception handlers here.
