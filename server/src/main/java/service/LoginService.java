@@ -5,6 +5,7 @@ import dataaccess.daomodels.AuthDao;
 import dataaccess.daomodels.UserDao;
 import exception.ResponseException;
 import models.AuthData;
+import models.UserData;
 
 public class LoginService {
 
@@ -16,11 +17,18 @@ public class LoginService {
         this.userDao = userDao;
     }
 
-    public AuthData loginUser(String username, String Password) throws ResponseException {
+    public AuthData loginUser(String username, String password) throws ResponseException {
+        UserData user;
         try {
-            userDao.getUser(username);
+            user = userDao.getUser(username);
         } catch (DataAccessException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
+        if (user == null || user.username() == null) {
+            throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
+        }
+        if (user.password() != password) {
+            throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
         }
         return authDao.createAuth(username);
     }
