@@ -6,8 +6,10 @@ import dataaccess.daomodels.UserDao;
 import dataaccess.memory.MemoryAuthDao;
 import dataaccess.memory.MemoryGameDao;
 import dataaccess.memory.MemoryUserDao;
+import handlers.LoginHandler;
 import handlers.RegisterHandler;
 import io.javalin.*;
+import service.LoginService;
 import service.RegisterService;
 
 public class Server {
@@ -17,17 +19,19 @@ public class Server {
     private final UserDao userDao;
     private final GameDao gameDao;
     private final RegisterService registerService;
-
+    private final LoginService loginService;
 
     public Server() {
         this.userDao = new MemoryUserDao();
         this.authDao = new MemoryAuthDao();
         this.gameDao = new MemoryGameDao();
         this.registerService = new RegisterService(authDao, userDao);
+        this.loginService = new LoginService(authDao, userDao);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
 
-                .post("/user", new RegisterHandler(registerService));
+                .post("/user", new RegisterHandler(registerService))
+                .post("/session", new LoginHandler(loginService));
 
         // Register your endpoints and exception handlers here.
 
