@@ -1,11 +1,11 @@
 package requests;
 
-public record CreateGameRequest(String name) {
+public record CreateGameRequest(String gameName) {
 
     @Override
     public String toString() {
         return "CreateGameRequest{" +
-                "name='" + name + '\'' +
+                "name='" + gameName + '\'' +
                 '}';
     }
 }
