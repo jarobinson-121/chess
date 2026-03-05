@@ -19,8 +19,12 @@ public class RegisterService {
 
     public AuthData createUser(UserData user) throws ResponseException {
         try {
-            userDao.createUser(user);
-            return authDao.createAuth(user.username());
+            if (userDao.getUser(user.username()) == null) {
+                userDao.createUser(user);
+                return authDao.createAuth(user.username());
+            } else {
+                throw new ResponseException(ResponseException.Code.AlreadyTakenError, "Error: Already Taken");
+            }
         } catch (DataAccessException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
