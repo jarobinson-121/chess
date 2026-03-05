@@ -20,7 +20,7 @@ public class LoginHandler implements Handler {
     public void handle(Context ctx) throws ResponseException {
         var user = new Gson().fromJson(ctx.body(), LoginRequest.class);
         if (user == null || user.username() == null || user.password() == null) {
-            throw new ResponseException(ResponseException.Code.BadRequest, "Bad Request");
+            throw new ResponseException(ResponseException.Code.BadRequest, "Error: Bad Request");
         }
         AuthData auth = loginService.loginUser(user.username(), user.password());
         ctx.result(new Gson().toJson(auth));

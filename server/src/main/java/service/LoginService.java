@@ -25,10 +25,10 @@ public class LoginService {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
         if (user == null || user.username() == null) {
-            throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
+            throw new ResponseException(ResponseException.Code.Unauthorized, "Error: Unauthorized");
         }
         if (!user.password().equals(password)) {
-            throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
+            throw new ResponseException(ResponseException.Code.Unauthorized, "Error: Unauthorized");
         }
         return authDao.createAuth(username);
     }

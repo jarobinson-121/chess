@@ -21,7 +21,7 @@ public class LogoutService {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
         if (auth == null) {
-            throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized");
+            throw new ResponseException(ResponseException.Code.Unauthorized, "Error: Unauthorized");
         }
         try {
             authDao.deleteAuth(token);

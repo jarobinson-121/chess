@@ -16,7 +16,7 @@ public class LogoutHandler implements Handler {
     public void handle(Context ctx) throws ResponseException {
         String token = ctx.header("authorization");
         if (token == null) {
-            throw new ResponseException(ResponseException.Code.BadRequest, "Bad Request");
+            throw new ResponseException(ResponseException.Code.BadRequest, "Error: Bad Request");
         }
         logoutService.logoutUser(token);
         ctx.status(200).result("");
