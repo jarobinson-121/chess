@@ -11,18 +11,20 @@ public class MemoryUserDao implements UserDao {
     private final HashMap<String, UserData> userList = new HashMap<>();
 
     public UserData createUser(UserData user) throws DataAccessException {
-        if (userList.containsKey(user.username())) {
-            throw new DataAccessException("Already taken");
+        try {
+            userList.put(user.username(), user);
+            return user;
+        } catch (Exception ex) {
+            throw new DataAccessException("Error: Server Error");
         }
-        userList.put(user.username(), user);
-        return user;
     }
 
     public UserData getUser(String username) throws DataAccessException {
-        if (!userList.containsKey(username)) {
-            throw new DataAccessException("No user found");
+        try {
+            return userList.get(username);
+        } catch (Exception ex) {
+            throw new DataAccessException("Error: Server Error");
         }
-        return userList.get(username);
     }
 
     public void clearUsers() {
