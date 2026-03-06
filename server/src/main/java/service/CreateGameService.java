@@ -23,15 +23,15 @@ public class CreateGameService {
         AuthData auth;
         try {
             auth = authDao.getAuth(token);
+            if (auth == null) {
+                throw new ResponseException(ResponseException.Code.Unauthorized, "Error: Unauthorized");
+            }
+            if (gameName == null) {
+                throw new ResponseException(ResponseException.Code.BadRequest, "Error: Bad Request");
+            }
+            return gameDao.createGame(gameName);
         } catch (DataAccessException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
-        if (auth == null) {
-            throw new ResponseException(ResponseException.Code.Unauthorized, "Error: Unauthorized");
-        }
-        if (gameName == null) {
-            throw new ResponseException(ResponseException.Code.BadRequest, "Error: BadRequest");
-        }
-        return gameDao.createGame(gameName);
     }
 }
