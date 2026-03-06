@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ListGamesServiceTest {
     private static UserData testUser;
     private static AuthData auth;
-    private static GameData game;
+
 
     static final MemoryAuthDao authDao = new MemoryAuthDao();
     static final MemoryUserDao userDao = new MemoryUserDao();
@@ -24,7 +24,6 @@ public class ListGamesServiceTest {
     static final RegisterService registerService = new RegisterService(authDao, userDao);
     static final LoginService loginService = new LoginService(authDao, userDao);
     static final CreateGameService createGameService = new CreateGameService(authDao, gameDao);
-    static final JoinGameService joinGameService = new JoinGameService(authDao, gameDao);
     static final ListGamesService listGameService = new ListGamesService(authDao, gameDao);
 
     @BeforeAll
