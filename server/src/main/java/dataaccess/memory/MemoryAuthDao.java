@@ -11,18 +11,23 @@ public class MemoryAuthDao implements AuthDao {
 
     private HashMap<String, AuthData> authList = new HashMap<>();
 
-    public AuthData createAuth(String username) {
-        AuthData newAuth = new AuthData(generateToken(), username);
-        authList.put(newAuth.authToken(), newAuth);
-        return newAuth;
+    public AuthData createAuth(String username) throws DataAccessException {
+        try {
+            AuthData newAuth = new AuthData(generateToken(), username);
+            authList.put(newAuth.authToken(), newAuth);
+            return newAuth;
+        } catch (Exception ex) {
+            throw new DataAccessException("Error: Server Error");
+        }
+
     }
 
     public AuthData getAuth(String token) throws DataAccessException {
-        AuthData auth = authList.get(token);
-        if (auth == null) {
-            throw new DataAccessException("Error: user not found");
-        } else {
+        try {
+            AuthData auth = authList.get(token);
             return auth;
+        } catch (Exception ex) {
+            throw new DataAccessException("Error: Server Error");
         }
     }
 
