@@ -23,33 +23,33 @@ public class JoinGameServiceTest {
     private static AuthData filler2;
     private static GameData game;
 
-    static final MemoryAuthDao authDao = new MemoryAuthDao();
-    static final MemoryUserDao userDao = new MemoryUserDao();
-    static final MemoryGameDao gameDao = new MemoryGameDao();
-    static final RegisterService registerService = new RegisterService(authDao, userDao);
-    static final LoginService loginService = new LoginService(authDao, userDao);
-    static final CreateGameService createGameService = new CreateGameService(authDao, gameDao);
-    static final JoinGameService joinGameService = new JoinGameService(authDao, gameDao);
+    static final MemoryAuthDao AUTH_DAO = new MemoryAuthDao();
+    static final MemoryUserDao USER_DAO = new MemoryUserDao();
+    static final MemoryGameDao GAME_DAO = new MemoryGameDao();
+    static final RegisterService REGISTER_SERVICE = new RegisterService(AUTH_DAO, USER_DAO);
+    static final LoginService LOGIN_SERVICE = new LoginService(AUTH_DAO, USER_DAO);
+    static final CreateGameService CREATE_GAME_SERVICE = new CreateGameService(AUTH_DAO, GAME_DAO);
+    static final JoinGameService JOIN_GAME_SERVICE = new JoinGameService(AUTH_DAO, GAME_DAO);
 
     @BeforeAll
     public static void init() throws ResponseException {
         testUser = new UserData("newUser", "newUserPassword", "eu@mail.com");
         fillerUser1 = new UserData("otherUser1", "password", "");
         fillerUser2 = new UserData("otherUser2", "otherPassword", "");
-        registerService.createUser(testUser);
-        registerService.createUser(fillerUser1);
-        registerService.createUser(fillerUser2);
-        auth = loginService.loginUser(testUser.username(), testUser.password());
-        filler1 = loginService.loginUser(fillerUser1.username(), fillerUser1.password());
-        filler2 = loginService.loginUser(fillerUser2.username(), fillerUser2.password());
-        game = createGameService.createGame(auth.authToken(), "gameName");
+        REGISTER_SERVICE.createUser(testUser);
+        REGISTER_SERVICE.createUser(fillerUser1);
+        REGISTER_SERVICE.createUser(fillerUser2);
+        auth = LOGIN_SERVICE.loginUser(testUser.username(), testUser.password());
+        filler1 = LOGIN_SERVICE.loginUser(fillerUser1.username(), fillerUser1.password());
+        filler2 = LOGIN_SERVICE.loginUser(fillerUser2.username(), fillerUser2.password());
+        game = CREATE_GAME_SERVICE.createGame(auth.authToken(), "gameName");
     }
 
     @Test
     void joinGameSuccess() throws ResponseException, DataAccessException {
-        joinGameService.joinGame(auth.authToken(), "white", 1);
+        JOIN_GAME_SERVICE.joinGame(auth.authToken(), "white", 1);
 
-        GameData gameChecker = gameDao.getGame(1);
+        GameData gameChecker = GAME_DAO.getGame(1);
 
         assertNotNull(game);
         assertNotNull(gameChecker);
@@ -59,12 +59,12 @@ public class JoinGameServiceTest {
 
     @Test
     void joinGameFailFull() throws ResponseException {
-        createGameService.createGame(filler1.authToken(), "otherGame");
-        joinGameService.joinGame(filler1.authToken(), "black", 2);
-        joinGameService.joinGame(filler2.authToken(), "white", 2);
+        CREATE_GAME_SERVICE.createGame(filler1.authToken(), "otherGame");
+        JOIN_GAME_SERVICE.joinGame(filler1.authToken(), "black", 2);
+        JOIN_GAME_SERVICE.joinGame(filler2.authToken(), "white", 2);
 
         assertThrows(ResponseException.class, () -> {
-            joinGameService.joinGame(auth.authToken(), "white", 2);
+            JOIN_GAME_SERVICE.joinGame(auth.authToken(), "white", 2);
         });
     }
 }
