@@ -23,6 +23,7 @@ public class Server {
     private final LogoutService logoutService;
     private final CreateGameService createGameService;
     private final JoinGameService joinGameService;
+    private final ListGamesService listGamesService;
 
     public Server() {
         this.userDao = new MemoryUserDao();
@@ -33,6 +34,7 @@ public class Server {
         this.logoutService = new LogoutService(authDao);
         this.createGameService = new CreateGameService(authDao, gameDao);
         this.joinGameService = new JoinGameService(authDao, gameDao);
+        this.listGamesService = new ListGamesService(authDao, gameDao);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
 
@@ -41,6 +43,7 @@ public class Server {
                 .delete("/session", new LogoutHandler(logoutService))
                 .post("/game", new CreateGameHandler(createGameService))
                 .put("/game", new JoinGameHandler(joinGameService))
+                .get("/game", new ListGamesHandler(listGamesService))
                 .exception(ResponseException.class, this::exceptionHandler);
 
         // Register your endpoints and exception handlers here.
