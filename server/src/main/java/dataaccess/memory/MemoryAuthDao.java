@@ -34,6 +34,10 @@ public class MemoryAuthDao implements AuthDao {
         }
     }
 
+    public void clearAuths() {
+        authList.clear();
+    }
+
     private String generateToken() {
         return UUID.randomUUID().toString();
     }
