@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import dataaccess.daomodels.GameDao;
 import models.GameData;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 public class MemoryGameDao implements GameDao {
@@ -41,7 +42,19 @@ public class MemoryGameDao implements GameDao {
         }
     }
 
-    public void clearGames() {
+    public Collection<GameData> listGames() throws DataAccessException {
+        try {
+            return gameList.values();
+        } catch (Exception ex) {
+            throw new DataAccessException("Error: Server Error");
+        }
+    }
 
+    public void clearGames() throws DataAccessException {
+        try {
+            gameList.clear();
+        } catch (Exception ex) {
+            throw new DataAccessException("Error: Server Error");
+        }
     }
 }

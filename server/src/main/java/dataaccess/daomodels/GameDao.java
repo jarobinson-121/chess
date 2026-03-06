@@ -4,6 +4,8 @@ import chess.ChessGame;
 import dataaccess.DataAccessException;
 import models.GameData;
 
+import java.util.Collection;
+
 public interface GameDao {
 
     GameData createGame(String gameName) throws DataAccessException;
@@ -12,5 +14,7 @@ public interface GameDao {
 
     void updateGame(GameData newGame) throws DataAccessException;
 
-    void clearGames();
+    Collection<GameData> listGames() throws DataAccessException;
+
+    void clearGames() throws DataAccessException;
 }
