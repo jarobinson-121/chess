@@ -23,6 +23,6 @@ public class JoinGameHandler implements Handler {
         JoinGameRequest request = new Gson().fromJson(ctx.body(), JoinGameRequest.class);
         String playerColor = request.playerColor();
         int gameID = request.gameID();
-        joinGameService.JoinGame(token, playerColor, gameID);
+        joinGameService.joinGame(token, playerColor, gameID);
     }
 }

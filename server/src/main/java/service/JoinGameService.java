@@ -17,7 +17,7 @@ public class JoinGameService {
         this.gameDao = gameDao;
     }
 
-    public void JoinGame(String token, String playerColor, int gameID) throws ResponseException {
+    public void joinGame(String token, String playerColor, int gameID) throws ResponseException {
         try {
             AuthData auth = authDao.getAuth(token);
             if (auth == null || auth.username() == null) {

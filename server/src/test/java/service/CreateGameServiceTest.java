@@ -17,32 +17,32 @@ class CreateGameServiceTest {
     private static UserData testUser;
     private static AuthData auth;
 
-    static final MemoryAuthDao authDao = new MemoryAuthDao();
-    static final MemoryUserDao userDao = new MemoryUserDao();
-    static final MemoryGameDao gameDao = new MemoryGameDao();
-    static final RegisterService registerService = new RegisterService(authDao, userDao);
-    static final LoginService loginService = new LoginService(authDao, userDao);
-    static final CreateGameService createGameService = new CreateGameService(authDao, gameDao);
+    static final MemoryAuthDao AUTH_DAO = new MemoryAuthDao();
+    static final MemoryUserDao USER_DAO = new MemoryUserDao();
+    static final MemoryGameDao GAME_DAO = new MemoryGameDao();
+    static final RegisterService REGISTER_SERVICE = new RegisterService(AUTH_DAO, USER_DAO);
+    static final LoginService LOGIN_SERVICE = new LoginService(AUTH_DAO, USER_DAO);
+    static final CreateGameService CREATE_GAME_SERVICE = new CreateGameService(AUTH_DAO, GAME_DAO);
 
     @BeforeAll
     public static void init() throws ResponseException {
         testUser = new UserData("newUser", "newUserPassword", "eu@mail.com");
-        registerService.createUser(testUser);
-        auth = loginService.loginUser(testUser.username(), testUser.password());
+        REGISTER_SERVICE.createUser(testUser);
+        auth = LOGIN_SERVICE.loginUser(testUser.username(), testUser.password());
     }
 
     @Test
-    void CreateGameSuccess() throws ResponseException {
-        GameData game = createGameService.createGame(auth.authToken(), "gameName");
+    void createGameSuccess() throws ResponseException {
+        GameData game = CREATE_GAME_SERVICE.createGame(auth.authToken(), "gameName");
 
         assertNotNull(game);
         assertEquals(game.gameID(), 1);
     }
 
     @Test
-    void CreateGameFailBadToken() {
+    void createGameFailBadToken() {
         assertThrows(ResponseException.class, () -> {
-            createGameService.createGame("badToken", "gameName");
+            CREATE_GAME_SERVICE.createGame("badToken", "gameName");
         });
     }
 }

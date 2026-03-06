@@ -11,13 +11,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RegisterServiceTest {
 
-    static final RegisterService registerService = new RegisterService(new MemoryAuthDao(), new MemoryUserDao());
+    static final RegisterService REGISTER_SERVICE = new RegisterService(new MemoryAuthDao(), new MemoryUserDao());
 
 
     @Test
     void addUserSuccess() throws ResponseException {
         UserData testUser = new UserData("testUsername", "password", "email");
-        AuthData auth = registerService.createUser(testUser);
+        AuthData auth = REGISTER_SERVICE.createUser(testUser);
 
         assertEquals(auth.username(), testUser.username());
         assertNotNull(auth.authToken());
@@ -26,10 +26,10 @@ class RegisterServiceTest {
     @Test
     void addUserFailTaken() throws ResponseException {
         UserData testUser = new UserData("takenUsername", "password", "email");
-        registerService.createUser(testUser);
+        REGISTER_SERVICE.createUser(testUser);
 
         assertThrows(ResponseException.class, () -> {
-            registerService.createUser(testUser);
+            REGISTER_SERVICE.createUser(testUser);
         });
     }
 }

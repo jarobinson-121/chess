@@ -6,7 +6,6 @@ import exception.ResponseException;
 import models.AuthData;
 import models.UserData;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,29 +14,29 @@ class LoginServiceTest {
 
     private static UserData testUser;
 
-    static final MemoryAuthDao authDao = new MemoryAuthDao();
-    static final MemoryUserDao userDao = new MemoryUserDao();
-    static final RegisterService registerService = new RegisterService(authDao, userDao);
-    static final LoginService loginService = new LoginService(authDao, userDao);
+    static final MemoryAuthDao AUTH_DAO = new MemoryAuthDao();
+    static final MemoryUserDao USER_DAO = new MemoryUserDao();
+    static final RegisterService REGISTER_SERVICE = new RegisterService(AUTH_DAO, USER_DAO);
+    static final LoginService LOGIN_SERVICE = new LoginService(AUTH_DAO, USER_DAO);
 
     @BeforeAll
     public static void init() throws ResponseException {
         testUser = new UserData("newUser", "newUserPassword", "eu@mail.com");
-        registerService.createUser(testUser);
+        REGISTER_SERVICE.createUser(testUser);
     }
 
     @Test
-    void LoginUserSuccess() throws ResponseException {
-        AuthData auth = loginService.loginUser(testUser.username(), testUser.password());
+    void loginUserSuccess() throws ResponseException {
+        AuthData auth = LOGIN_SERVICE.loginUser(testUser.username(), testUser.password());
 
         assertEquals(auth.username(), testUser.username());
         assertNotNull(auth.authToken());
     }
 
     @Test
-    void LoginUserFailBadPassword() {
+    void loginUserFailBadPassword() {
         assertThrows(ResponseException.class, () -> {
-            loginService.loginUser(testUser.username(), "BadPass");
+            LOGIN_SERVICE.loginUser(testUser.username(), "BadPass");
         });
     }
 

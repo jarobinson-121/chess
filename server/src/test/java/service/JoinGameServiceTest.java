@@ -46,8 +46,8 @@ public class JoinGameServiceTest {
     }
 
     @Test
-    void JoinGameSuccess() throws ResponseException, DataAccessException {
-        joinGameService.JoinGame(auth.authToken(), "white", 1);
+    void joinGameSuccess() throws ResponseException, DataAccessException {
+        joinGameService.joinGame(auth.authToken(), "white", 1);
 
         GameData gameChecker = gameDao.getGame(1);
 
@@ -58,13 +58,13 @@ public class JoinGameServiceTest {
     }
 
     @Test
-    void JoinGameFailFull() throws ResponseException {
+    void joinGameFailFull() throws ResponseException {
         createGameService.createGame(filler1.authToken(), "otherGame");
-        joinGameService.JoinGame(filler1.authToken(), "black", 2);
-        joinGameService.JoinGame(filler2.authToken(), "white", 2);
+        joinGameService.joinGame(filler1.authToken(), "black", 2);
+        joinGameService.joinGame(filler2.authToken(), "white", 2);
 
         assertThrows(ResponseException.class, () -> {
-            joinGameService.JoinGame(auth.authToken(), "white", 2);
+            joinGameService.joinGame(auth.authToken(), "white", 2);
         });
     }
 }

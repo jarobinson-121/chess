@@ -6,7 +6,6 @@ import dataaccess.memory.MemoryGameDao;
 import dataaccess.memory.MemoryUserDao;
 import exception.ResponseException;
 import models.AuthData;
-import models.GameData;
 import models.UserData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -18,47 +17,47 @@ public class ListGamesServiceTest {
     private static AuthData auth;
 
 
-    static final MemoryAuthDao authDao = new MemoryAuthDao();
-    static final MemoryUserDao userDao = new MemoryUserDao();
-    static final MemoryGameDao gameDao = new MemoryGameDao();
-    static final RegisterService registerService = new RegisterService(authDao, userDao);
-    static final LoginService loginService = new LoginService(authDao, userDao);
-    static final CreateGameService createGameService = new CreateGameService(authDao, gameDao);
-    static final ListGamesService listGameService = new ListGamesService(authDao, gameDao);
+    static final MemoryAuthDao AUTH_DAO = new MemoryAuthDao();
+    static final MemoryUserDao USER_DAO = new MemoryUserDao();
+    static final MemoryGameDao GAME_DAO = new MemoryGameDao();
+    static final RegisterService REGISTER_SERVICE = new RegisterService(AUTH_DAO, USER_DAO);
+    static final LoginService LOGIN_SERVICE = new LoginService(AUTH_DAO, USER_DAO);
+    static final CreateGameService CREATE_GAME_SERVICE = new CreateGameService(AUTH_DAO, GAME_DAO);
+    static final ListGamesService LIST_GAMES_SERVICE = new ListGamesService(AUTH_DAO, GAME_DAO);
 
     @BeforeAll
     public static void init() throws ResponseException {
         testUser = new UserData("newUser", "newUserPassword", "eu@mail.com");
-        registerService.createUser(testUser);
-        auth = loginService.loginUser(testUser.username(), testUser.password());
+        REGISTER_SERVICE.createUser(testUser);
+        auth = LOGIN_SERVICE.loginUser(testUser.username(), testUser.password());
     }
 
     @Test
-    void EmptyListGamesSuccess() throws ResponseException, DataAccessException {
-        gameDao.clearGames();
+    void emptyListGamesSuccess() throws ResponseException, DataAccessException {
+        GAME_DAO.clearGames();
 
-        var list = listGameService.listGames(auth.authToken());
+        var list = LIST_GAMES_SERVICE.listGames(auth.authToken());
 
         assertNotNull(list);
     }
 
     @Test
-    void List10GamesSuccess() throws ResponseException {
+    void list10GamesSuccess() throws ResponseException {
         for (int i = 0; i < 10; i++) {
-            createGameService.createGame(auth.authToken(), "TitlesCanRepeat");
+            CREATE_GAME_SERVICE.createGame(auth.authToken(), "TitlesCanRepeat");
         }
 
-        var list = listGameService.listGames(auth.authToken());
+        var list = LIST_GAMES_SERVICE.listGames(auth.authToken());
 
         assertNotNull(list);
     }
 
 
     @Test
-    void ListGamesFailToken() {
+    void listGamesFailToken() {
 
         assertThrows(ResponseException.class, () -> {
-            listGameService.listGames("badToken");
+            LIST_GAMES_SERVICE.listGames("badToken");
         });
     }
 }

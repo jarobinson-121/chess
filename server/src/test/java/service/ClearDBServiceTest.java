@@ -23,36 +23,36 @@ public class ClearDBServiceTest {
     private static AuthData filler2;
     private static GameData game;
 
-    static final MemoryAuthDao authDao = new MemoryAuthDao();
-    static final MemoryUserDao userDao = new MemoryUserDao();
-    static final MemoryGameDao gameDao = new MemoryGameDao();
-    static final RegisterService registerService = new RegisterService(authDao, userDao);
-    static final LoginService loginService = new LoginService(authDao, userDao);
-    static final CreateGameService createGameService = new CreateGameService(authDao, gameDao);
-    static final JoinGameService joinGameService = new JoinGameService(authDao, gameDao);
-    static final ClearDBService clearDBService = new ClearDBService(authDao, gameDao, userDao);
+    static final MemoryAuthDao AUTH_DAO = new MemoryAuthDao();
+    static final MemoryUserDao USER_DAO = new MemoryUserDao();
+    static final MemoryGameDao GAME_DAO = new MemoryGameDao();
+    static final RegisterService REGISTER_SERVICE = new RegisterService(AUTH_DAO, USER_DAO);
+    static final LoginService LOGIN_SERVICE = new LoginService(AUTH_DAO, USER_DAO);
+    static final CreateGameService CREATE_GAME_SERVICE = new CreateGameService(AUTH_DAO, GAME_DAO);
+    static final JoinGameService JOIN_GAME_SERVICE = new JoinGameService(AUTH_DAO, GAME_DAO);
+    static final ClearDBService CLEAR_DB_SERVICE = new ClearDBService(AUTH_DAO, GAME_DAO, USER_DAO);
 
     @BeforeAll
     public static void init() throws ResponseException {
         testUser = new UserData("newUser", "newUserPassword", "eu@mail.com");
         fillerUser1 = new UserData("otherUser1", "password", "");
         fillerUser2 = new UserData("otherUser2", "otherPassword", "");
-        registerService.createUser(testUser);
-        registerService.createUser(fillerUser1);
-        registerService.createUser(fillerUser2);
-        auth = loginService.loginUser(testUser.username(), testUser.password());
-        filler1 = loginService.loginUser(fillerUser1.username(), fillerUser1.password());
-        filler2 = loginService.loginUser(fillerUser2.username(), fillerUser2.password());
-        game = createGameService.createGame(auth.authToken(), "gameName");
+        REGISTER_SERVICE.createUser(testUser);
+        REGISTER_SERVICE.createUser(fillerUser1);
+        REGISTER_SERVICE.createUser(fillerUser2);
+        auth = LOGIN_SERVICE.loginUser(testUser.username(), testUser.password());
+        filler1 = LOGIN_SERVICE.loginUser(fillerUser1.username(), fillerUser1.password());
+        filler2 = LOGIN_SERVICE.loginUser(fillerUser2.username(), fillerUser2.password());
+        game = CREATE_GAME_SERVICE.createGame(auth.authToken(), "gameName");
     }
 
     @Test
-    void ClearDBSuccess() throws ResponseException, DataAccessException {
-        clearDBService.clearDB();
+    void clearDBSuccess() throws ResponseException, DataAccessException {
+        CLEAR_DB_SERVICE.clearDB();
 
-        assertDoesNotThrow(() -> clearDBService.clearDB());
+        assertDoesNotThrow(() -> CLEAR_DB_SERVICE.clearDB());
 
-        assertNull(userDao.getUser(testUser.username()));
-        assertNull(userDao.getUser(filler1.username()));
+        assertNull(USER_DAO.getUser(testUser.username()));
+        assertNull(USER_DAO.getUser(filler1.username()));
     }
 }
