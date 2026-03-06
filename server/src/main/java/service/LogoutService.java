@@ -14,16 +14,11 @@ public class LogoutService {
     }
 
     public void logoutUser(String token) throws ResponseException {
-        AuthData auth;
         try {
-            auth = authDao.getAuth(token);
-        } catch (DataAccessException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
-        }
-        if (auth == null) {
-            throw new ResponseException(ResponseException.Code.Unauthorized, "Error: Unauthorized");
-        }
-        try {
+            AuthData auth = authDao.getAuth(token);
+            if (auth == null) {
+                throw new ResponseException(ResponseException.Code.Unauthorized, "Error: Unauthorized");
+            }
             authDao.deleteAuth(token);
         } catch (DataAccessException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
