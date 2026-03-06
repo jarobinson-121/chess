@@ -7,16 +7,10 @@ import dataaccess.memory.MemoryAuthDao;
 import dataaccess.memory.MemoryGameDao;
 import dataaccess.memory.MemoryUserDao;
 import exception.ResponseException;
-import handlers.CreateGameHandler;
-import handlers.LoginHandler;
-import handlers.LogoutHandler;
-import handlers.RegisterHandler;
+import handlers.*;
 import io.javalin.*;
 import io.javalin.http.Context;
-import service.CreateGameService;
-import service.LoginService;
-import service.LogoutService;
-import service.RegisterService;
+import service.*;
 
 public class Server {
 
@@ -28,6 +22,7 @@ public class Server {
     private final LoginService loginService;
     private final LogoutService logoutService;
     private final CreateGameService createGameService;
+    private final JoinGameService joinGameService;
 
     public Server() {
         this.userDao = new MemoryUserDao();
@@ -37,6 +32,7 @@ public class Server {
         this.loginService = new LoginService(authDao, userDao);
         this.logoutService = new LogoutService(authDao);
         this.createGameService = new CreateGameService(authDao, gameDao);
+        this.joinGameService = new JoinGameService(authDao, gameDao);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
 
@@ -44,6 +40,7 @@ public class Server {
                 .post("/session", new LoginHandler(loginService))
                 .delete("/session", new LogoutHandler(logoutService))
                 .post("/game", new CreateGameHandler(createGameService))
+                .put("/game", new JoinGameHandler(joinGameService))
                 .exception(ResponseException.class, this::exceptionHandler);
 
         // Register your endpoints and exception handlers here.
