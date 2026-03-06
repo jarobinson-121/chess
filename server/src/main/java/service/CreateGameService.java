@@ -23,7 +23,7 @@ public class CreateGameService {
         AuthData auth;
         try {
             auth = authDao.getAuth(token);
-            if (auth == null) {
+            if (auth == null || auth.username() == null) {
                 throw new ResponseException(ResponseException.Code.Unauthorized, "Error: Unauthorized");
             }
             if (gameName == null) {

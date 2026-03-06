@@ -16,7 +16,7 @@ public class LogoutService {
     public void logoutUser(String token) throws ResponseException {
         try {
             AuthData auth = authDao.getAuth(token);
-            if (auth == null) {
+            if (auth == null || auth.username() == null) {
                 throw new ResponseException(ResponseException.Code.Unauthorized, "Error: Unauthorized");
             }
             authDao.deleteAuth(token);

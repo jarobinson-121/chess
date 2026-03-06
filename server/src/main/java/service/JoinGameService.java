@@ -20,7 +20,7 @@ public class JoinGameService {
     public void JoinGame(String token, String playerColor, int gameID) throws ResponseException {
         try {
             AuthData auth = authDao.getAuth(token);
-            if (auth == null) {
+            if (auth == null || auth.username() == null) {
                 throw new ResponseException(ResponseException.Code.Unauthorized, "Error: Unauthorized");
             }
             GameData oldGame = gameDao.getGame(gameID);
@@ -33,7 +33,9 @@ public class JoinGameService {
             if (blackUsername != null && whiteUsername != null) {
                 throw new ResponseException(ResponseException.Code.AlreadyTakenError, "Error: Unavailable");
             }
-            if (playerColor.toLowerCase().equals("white")) {
+            if (playerColor == null) {
+                throw new ResponseException(ResponseException.Code.BadRequest, "Error: Bad Request");
+            } else if (playerColor.toLowerCase().equals("white")) {
                 if (oldGame.whiteUsername() != null) {
                     throw new ResponseException(ResponseException.Code.AlreadyTakenError, "Error: Player taken");
                 }
@@ -43,6 +45,8 @@ public class JoinGameService {
                     throw new ResponseException(ResponseException.Code.AlreadyTakenError, "Error: Player taken");
                 }
                 blackUsername = auth.username();
+            } else {
+                throw new ResponseException(ResponseException.Code.BadRequest, "Error: Bad Request");
             }
             gameDao.updateGame(new GameData(gameID, whiteUsername, blackUsername, oldGame.gameName(), oldGame.game()));
         } catch (DataAccessException ex) {
