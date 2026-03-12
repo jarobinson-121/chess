@@ -1,11 +1,15 @@
 package server;
 
+import dataaccess.DatabaseManager;
 import dataaccess.daomodels.AuthDao;
 import dataaccess.daomodels.GameDao;
 import dataaccess.daomodels.UserDao;
 import dataaccess.memory.MemoryAuthDao;
 import dataaccess.memory.MemoryGameDao;
 import dataaccess.memory.MemoryUserDao;
+import dataaccess.sql.SQLAuthDao;
+import dataaccess.sql.SQLGameDao;
+import dataaccess.sql.SQLUserDao;
 import exception.ResponseException;
 import handlers.*;
 import io.javalin.*;
@@ -27,9 +31,20 @@ public class Server {
     private final ClearDBService clearDBService;
 
     public Server() {
-        this.userDao = new MemoryUserDao();
-        this.authDao = new MemoryAuthDao();
-        this.gameDao = new MemoryGameDao();
+
+        boolean sql = true;
+
+        if (sql) {
+            try {
+                DatabaseManager.configureDatabase();
+            } catch (Exception ex) {
+                throw new RuntimeException("Database Configuration failed", ex);
+            }
+        }
+
+        this.userDao = (sql) ? new SQLUserDao() : new MemoryUserDao();
+        this.authDao = (sql) ? new SQLAuthDao() : new MemoryAuthDao();
+        this.gameDao = (sql) ? new SQLGameDao() : new MemoryGameDao();
         this.registerService = new RegisterService(authDao, userDao);
         this.loginService = new LoginService(authDao, userDao);
         this.logoutService = new LogoutService(authDao);
