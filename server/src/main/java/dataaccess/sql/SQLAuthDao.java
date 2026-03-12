@@ -6,6 +6,8 @@ import dataaccess.daomodels.AuthDao;
 import models.AuthData;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -23,7 +25,20 @@ public class SQLAuthDao implements AuthDao {
         }
     }
 
-    public AuthData getAuth(String token) {
+    public AuthData getAuth(String token) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT token, username FROM auths where token=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, token);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readAuth(rs);
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            throw new DataAccessException("Error: Failed to create new auth" + ex.getMessage());
+        }
         return null;
     }
 
