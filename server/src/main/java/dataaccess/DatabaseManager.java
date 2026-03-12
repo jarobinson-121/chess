@@ -58,7 +58,7 @@ public class DatabaseManager {
      * }
      * </code>
      */
-    static Connection getConnection() throws DataAccessException {
+    static public Connection getConnection() throws DataAccessException {
         try {
             //do not wrap the following line with a try-with-resources
             var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
@@ -69,7 +69,7 @@ public class DatabaseManager {
         }
     }
 
-    public static void executeUpdate(String statement, Object... params) throws ResponseException, DataAccessException {
+    public static void executeUpdate(String statement, Object... params) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 for (int i = 0; i < params.length; i++) {
@@ -85,14 +85,14 @@ public class DatabaseManager {
                 ps.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new ResponseException(ResponseException.Code.ServerError, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new DataAccessException(String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 
     private static final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS  users (
-              `username` varchar(256 NOT NULL,
+              `username` varchar(256) NOT NULL,
               `password` varchar(256) NOT NULL,
               `email` varchar(256),
               PRIMARY KEY (`username`),
@@ -101,7 +101,7 @@ public class DatabaseManager {
             """,
             """
             CREATE TABLE IF NOT EXISTS  auths (
-              `token` varchar(256 NOT NULL,
+              `token` varchar(256) NOT NULL,
               `username` varchar(256) NOT NULL,
               PRIMARY KEY (`username`),
               INDEX(token)
