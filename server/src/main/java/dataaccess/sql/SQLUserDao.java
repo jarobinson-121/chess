@@ -26,5 +26,11 @@ public class SQLUserDao implements UserDao {
         }
     }
 
+    public UserData getUser(String username) {
+        return null;
+    }
 
+    public void clearUsers() {
+
+    }
 }
