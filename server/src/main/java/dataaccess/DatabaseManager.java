@@ -1,7 +1,11 @@
 package dataaccess;
 
+import exception.ResponseException;
+
 import java.sql.*;
 import java.util.Properties;
+
+import static java.sql.Types.NULL;
 
 public class DatabaseManager {
     private static String databaseName;
@@ -29,6 +33,19 @@ public class DatabaseManager {
         }
     }
 
+    static public void configureDatabase() throws ResponseException, DataAccessException {
+        DatabaseManager.createDatabase();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            for (String statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (Exception ex) {
+            throw new ResponseException(ResponseException.Code.ServerError, String.format("Unable to configure database: %s", ex.getMessage()));
+        }
+    }
+
     /**
      * Create a connection to the database and sets the catalog based upon the
      * properties specified in db.properties. Connections to the database should
@@ -51,6 +68,37 @@ public class DatabaseManager {
             throw new DataAccessException("failed to get connection", ex);
         }
     }
+
+    private static final String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS  users (
+              `username` varchar(256 NOT NULL,
+              `password` varchar(256) NOT NULL,
+              `email` varchar(256),
+              PRIMARY KEY (`username`),
+              INDEX(username)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS  auths (
+              `token` varchar(256 NOT NULL,
+              `username` varchar(256) NOT NULL,
+              PRIMARY KEY (`username`),
+              INDEX(token)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS  games (
+              `gameID` int NOT NULL,
+               `whiteUsername` varchar(256),
+               `blackUsername` varchar(256),
+               `gameName` varchar(256) NOT NULL,
+               `gameState` TEXT NOT NULL,
+               PRIMARY KEY (`gameID`),
+               INDEX(gameID)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+    };
 
     private static void loadPropertiesFromResources() {
         try (var propStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties")) {
