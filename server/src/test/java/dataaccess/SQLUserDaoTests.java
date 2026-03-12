@@ -33,7 +33,7 @@ public class SQLUserDaoTests {
     }
 
     @Test
-    void addUserDuplicateUsername() throws DataAccessException {
+    void addUserFailDuplicateUsername() throws DataAccessException {
         userDao.createUser(user);
 
         Assertions.assertThrows(DataAccessException.class, () -> {
