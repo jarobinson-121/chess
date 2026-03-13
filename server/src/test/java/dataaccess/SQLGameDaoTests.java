@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import dataaccess.sql.SQLGameDao;
 import exception.ResponseException;
 import models.GameData;
@@ -60,6 +61,34 @@ public class SQLGameDaoTests {
         gameDao.createGame("name");
 
         assertNull(gameDao.getGame(0));
+    }
+
+    @Test
+    void updateGamePositive() throws DataAccessException {
+        gameDao.createGame("name");
+
+        GameData newGame = new GameData(1, "newusername", null, "name", new ChessGame());
+
+        gameDao.updateGame(newGame);
+
+        var result = gameDao.getGame(1);
+
+        assertNotNull(result);
+        assertNotNull(result.whiteUsername());
+        assertNull(result.blackUsername());
+        assertEquals("name", result.gameName());
+        assertEquals(new ChessGame(), result.game());
+    }
+
+    @Test
+    void updateGameNegative() throws DataAccessException {
+        gameDao.createGame("name");
+
+        GameData newGame = new GameData(0, "newusername", null, "name", new ChessGame());
+
+        assertThrows(DataAccessException.class, () -> {
+            gameDao.updateGame(newGame);
+        });
     }
 
     @Test
