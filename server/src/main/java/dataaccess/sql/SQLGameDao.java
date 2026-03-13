@@ -29,7 +29,10 @@ public class SQLGameDao implements GameDao {
         }
     }
 
-    public GameData getGame(int gameID) throws DataAccessException {
+    public GameData getGame(Integer gameID) throws DataAccessException {
+        if (gameID == null) {
+            return null;
+        }
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, gameState FROM games " +
                     "WHERE gameID=?";
