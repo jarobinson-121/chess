@@ -24,7 +24,7 @@ public class MemoryGameDao implements GameDao {
 
     }
 
-    public GameData getGame(int gameID) throws DataAccessException {
+    public GameData getGame(Integer gameID) throws DataAccessException {
         try {
             gameList.get(gameID);
             return gameList.get(gameID);
