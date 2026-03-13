@@ -41,4 +41,18 @@ public class SQLGameDaoTests {
 
         assertNull(gameDao.getGame(0));
     }
+
+    @Test
+    void clearGamesSuccess() throws DataAccessException {
+        for (int i = 0; i < 5; i++) {
+            gameDao.createGame("name");
+        }
+
+        assertNotNull(gameDao.getGame(1));
+        assertNotNull(gameDao.getGame(5));
+
+        gameDao.clearGames();
+
+        assertNull(gameDao.getGame(1));
+    }
 }
