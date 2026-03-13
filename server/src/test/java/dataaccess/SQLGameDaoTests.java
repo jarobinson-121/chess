@@ -92,6 +92,26 @@ public class SQLGameDaoTests {
     }
 
     @Test
+    void listGamesPositive() throws DataAccessException {
+        gameDao.createGame("name");
+        gameDao.createGame("name1");
+        gameDao.createGame("name2");
+
+        var result = gameDao.listGames();
+
+        assertNotNull(result);
+        assertEquals(3, result.size());
+    }
+
+    @Test
+    void listGamesNegative() throws DataAccessException {
+        var result = gameDao.listGames();
+
+        assertNotNull(result);
+        assertEquals(0, result.size());
+    }
+
+    @Test
     void clearGamesSuccess() throws DataAccessException {
         for (int i = 0; i < 5; i++) {
             gameDao.createGame("name");
