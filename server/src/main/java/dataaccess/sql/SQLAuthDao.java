@@ -47,7 +47,7 @@ public class SQLAuthDao implements AuthDao {
     }
 
     public void clearAuths() throws DataAccessException {
-        var statement = "DELETE FROM auths";
+        var statement = "TRUNCATE auths";
         DatabaseManager.executeUpdate(statement);
     }
 

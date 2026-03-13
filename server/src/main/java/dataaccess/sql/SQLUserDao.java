@@ -42,7 +42,7 @@ public class SQLUserDao implements UserDao {
     }
 
     public void clearUsers() throws DataAccessException {
-        var statement = "DELETE FROM users";
+        var statement = "TRUNCATE users";
         DatabaseManager.executeUpdate(statement);
     }
 
