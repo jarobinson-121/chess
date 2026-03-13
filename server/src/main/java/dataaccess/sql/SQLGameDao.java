@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class SQLGameDao implements GameDao {
@@ -68,8 +69,21 @@ public class SQLGameDao implements GameDao {
                 newGame.gameID());
     }
 
-    public Collection<GameData> listGames() {
-        return null;
+    public Collection<GameData> listGames() throws DataAccessException {
+        Collection<GameData> gameList = new ArrayList<>();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, gameState FROM games";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        gameList.add(readGame(rs));
+                    }
+                    return gameList;
+                }
+            }
+        } catch (Exception ex) {
+            throw new DataAccessException("Error: unable to red game(s) from database: " + ex.getMessage());
+        }
     }
 
     public void clearGames() throws DataAccessException {
