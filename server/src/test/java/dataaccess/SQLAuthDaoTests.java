@@ -1,11 +1,8 @@
 package dataaccess;
 
 import dataaccess.sql.SQLAuthDao;
-import dataaccess.sql.SQLUserDao;
 import exception.ResponseException;
 import models.AuthData;
-import models.UserData;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -33,9 +30,42 @@ public class SQLAuthDaoTests {
     }
 
     @Test
-    void getUserFailBadToken() throws DataAccessException {
-        AuthData tester = authDao.createAuth(auth.username());
+    void addFailNoUserame() throws DataAccessException {
+        authDao.createAuth(auth.username());
+
+        assertThrows(DataAccessException.class, () -> {
+            authDao.createAuth(null);
+        });
+    }
+
+    @Test
+    void getAuthFailBadToken() throws DataAccessException {
+        authDao.createAuth(auth.username());
 
         assertNull(authDao.getAuth(auth.authToken()));
+    }
+
+    @Test
+    void deleteAuthSuccess() throws DataAccessException {
+        AuthData tester = authDao.createAuth("TestName");
+        AuthData retrieved = authDao.getAuth(tester.authToken());
+        authDao.deleteAuth(retrieved.authToken());
+
+        assertNull(authDao.getAuth(retrieved.authToken()));
+    }
+
+    @Test
+    void deleteAuthFailBadToken() throws DataAccessException {
+        AuthData tester = authDao.createAuth("TestName");
+        authDao.deleteAuth("wrongToken");
+        AuthData retrieved = authDao.getAuth(tester.authToken());
+
+        assertNotNull(retrieved);
+        assertEquals(tester.username(), retrieved.username());
+    }
+
+    @Test
+    void clearAuthsSuccess() throws DataAccessException {
+
     }
 }
