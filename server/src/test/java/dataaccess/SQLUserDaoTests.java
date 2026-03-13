@@ -60,4 +60,17 @@ public class SQLUserDaoTests {
 
         assertNull(retrieved);
     }
+
+    @Test
+    void clearUsersSuccess() throws DataAccessException {
+        userDao.createUser(new UserData("username0", "password", "email@website"));
+        userDao.createUser(new UserData("username1", "password", "email@website"));
+        userDao.createUser(new UserData("username2", "password", "email@website"));
+
+        userDao.clearUsers();
+
+        Assertions.assertNull(userDao.getUser("username0"));
+        Assertions.assertNull(userDao.getUser("username1"));
+        Assertions.assertNull(userDao.getUser("username2"));
+    }
 }
