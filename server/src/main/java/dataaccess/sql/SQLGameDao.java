@@ -15,7 +15,7 @@ import java.util.Collection;
 
 public class SQLGameDao implements GameDao {
 
-    int nextID = 0;
+    int nextID = 1;
 
     public GameData createGame(String gameName) throws DataAccessException {
         try {
@@ -58,8 +58,9 @@ public class SQLGameDao implements GameDao {
         return null;
     }
 
-    public void clearGames() {
-
+    public void clearGames() throws DataAccessException {
+        var statement = "DELETE FROM games";
+        DatabaseManager.executeUpdate(statement);
     }
 
     private GameData readGame(ResultSet rs) throws SQLException {
