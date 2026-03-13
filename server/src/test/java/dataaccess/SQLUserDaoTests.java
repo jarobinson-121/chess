@@ -4,6 +4,7 @@ import dataaccess.sql.SQLUserDao;
 import exception.ResponseException;
 import models.UserData;
 import org.junit.jupiter.api.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,5 +40,24 @@ public class SQLUserDaoTests {
         Assertions.assertThrows(DataAccessException.class, () -> {
             userDao.createUser(user);
         });
+    }
+
+    @Test
+    void getUserSuccess() throws DataAccessException {
+        UserData tester = userDao.createUser(user);
+
+        UserData retrieved = userDao.getUser(tester.username());
+
+
+        assertNotNull(retrieved);
+        assertEquals(user.username(), retrieved.username());
+        assertTrue(BCrypt.checkpw("password", retrieved.password()));
+    }
+
+    @Test
+    void getUserFailMissingUser() throws DataAccessException {
+        UserData retrieved = userDao.getUser("badUname");
+
+        assertNull(retrieved);
     }
 }
