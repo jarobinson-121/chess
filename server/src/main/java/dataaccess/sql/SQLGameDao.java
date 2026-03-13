@@ -15,16 +15,14 @@ import java.util.Collection;
 
 public class SQLGameDao implements GameDao {
 
-    int nextID = 1;
 
     public GameData createGame(String gameName) throws DataAccessException {
         try {
-            int id = nextID++;
             ChessGame game = new ChessGame();
             String gameString = new Gson().toJson(game);
-            var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, gameState) " +
-                    "VALUES (?, ?, ?, ?, ?)";
-            DatabaseManager.executeUpdate(statement, id, null, null, gameName, gameString);
+            var statement = "INSERT INTO games (whiteUsername, blackUsername, gameName, gameState) " +
+                    "VALUES (?, ?, ?, ?)";
+            int id = DatabaseManager.executeUpdate(statement, null, null, gameName, gameString);
             return new GameData(id, null, null, gameName, game);
         } catch (Exception ex) {
             throw new DataAccessException("Error: Failed to create new game: " + ex.getMessage());
@@ -41,12 +39,13 @@ public class SQLGameDao implements GameDao {
                     if (rs.next()) {
                         return readGame(rs);
                     }
+                    return null;
                 }
             }
         } catch (Exception ex) {
             throw new DataAccessException("Error: Failed to retrieve game: " + ex.getMessage());
         }
-        return null;
+
     }
 
     public void updateGame(GameData newGame) {
@@ -58,7 +57,7 @@ public class SQLGameDao implements GameDao {
     }
 
     public void clearGames() throws DataAccessException {
-        var statement = "DELETE FROM games";
+        var statement = "TRUNCATE games";
         DatabaseManager.executeUpdate(statement);
     }
 
