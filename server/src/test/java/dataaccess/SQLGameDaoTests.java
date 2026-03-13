@@ -2,7 +2,12 @@ package dataaccess;
 
 import dataaccess.sql.SQLGameDao;
 import exception.ResponseException;
+import models.GameData;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SQLGameDaoTests {
 
@@ -11,6 +16,29 @@ public class SQLGameDaoTests {
     @BeforeAll
     static void setUp() throws DataAccessException, ResponseException {
         DatabaseManager.configureDatabase();
+        gameDao = new SQLGameDao();
     }
-    
+
+    @BeforeEach
+    void clearGamesDb() throws DataAccessException {
+        gameDao.clearGames();
+    }
+
+    @Test
+    void addRetrieveGameSuccess() throws DataAccessException {
+        GameData tester = gameDao.createGame("gameName");
+
+        GameData retrieved = gameDao.getGame(tester.gameID());
+
+        assertNotNull(retrieved);
+        assertNotNull(tester);
+        assertEquals(retrieved.gameName(), tester.gameName());
+    }
+
+    @Test
+    void addGameFailBadId() throws DataAccessException {
+        gameDao.createGame("name");
+
+        assertNull(gameDao.getGame(0));
+    }
 }
