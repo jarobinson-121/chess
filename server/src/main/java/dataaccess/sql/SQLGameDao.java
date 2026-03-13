@@ -22,7 +22,7 @@ public class SQLGameDao implements GameDao {
             int id = nextID++;
             ChessGame game = new ChessGame();
             String gameString = new Gson().toJson(game);
-            var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, gameState)" +
+            var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, gameState) " +
                     "VALUES (?, ?, ?, ?, ?)";
             DatabaseManager.executeUpdate(statement, id, null, null, gameName, gameString);
             return new GameData(id, null, null, gameName, game);
@@ -33,7 +33,7 @@ public class SQLGameDao implements GameDao {
 
     public GameData getGame(int gameID) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, gameState FROM games" +
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, gameState FROM games " +
                     "WHERE gameID=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, gameID);
@@ -43,7 +43,6 @@ public class SQLGameDao implements GameDao {
                     }
                 }
             }
-            DatabaseManager.executeUpdate(statement, gameID);
         } catch (Exception ex) {
             throw new DataAccessException("Error: Failed to retrieve game: " + ex.getMessage());
         }
