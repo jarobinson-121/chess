@@ -51,8 +51,21 @@ public class SQLGameDao implements GameDao {
 
     }
 
-    public void updateGame(GameData newGame) {
+    public void updateGame(GameData newGame) throws DataAccessException {
+        GameData oldGame = getGame(newGame.gameID());
+        if (oldGame == null) {
+            throw new DataAccessException("Error: Game not found");
+        }
 
+        String gameString = new Gson().toJson(newGame.game());
+        var statement = "UPDATE games SET whiteUsername=?, blackUsername=?, gameName=?, gameState=? " +
+                "WHERE gameID=?";
+        DatabaseManager.executeUpdate(statement,
+                newGame.whiteUsername(),
+                newGame.blackUsername(),
+                newGame.gameName(),
+                gameString,
+                newGame.gameID());
     }
 
     public Collection<GameData> listGames() {
