@@ -4,7 +4,6 @@ import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import dataaccess.daomodels.AuthDao;
 import models.AuthData;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -47,8 +46,9 @@ public class SQLAuthDao implements AuthDao {
         DatabaseManager.executeUpdate(statement, token);
     }
 
-    public void clearAuths() {
-
+    public void clearAuths() throws DataAccessException {
+        var statement = "DELETE FROM auths";
+        DatabaseManager.executeUpdate(statement);
     }
 
     private String generateToken() {
