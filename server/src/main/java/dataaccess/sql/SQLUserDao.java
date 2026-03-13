@@ -14,8 +14,8 @@ import java.sql.SQLException;
 public class SQLUserDao implements UserDao {
 
     public UserData createUser(UserData user) throws DataAccessException {
-        String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
         try {
+            String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
             var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
             DatabaseManager.executeUpdate(statement, user.username(), hashedPassword, user.email());
             return user;

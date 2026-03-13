@@ -3,6 +3,7 @@ package dataaccess.memory;
 import dataaccess.DataAccessException;
 import dataaccess.daomodels.UserDao;
 import models.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.HashMap;
 
@@ -12,8 +13,10 @@ public class MemoryUserDao implements UserDao {
 
     public UserData createUser(UserData user) throws DataAccessException {
         try {
-            userList.put(user.username(), user);
-            return user;
+            String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
+            UserData hashed = new UserData(user.username(), hashedPassword, user.email());
+            userList.put(user.username(), hashed);
+            return hashed;
         } catch (Exception ex) {
             throw new DataAccessException("Error: Server Error");
         }
