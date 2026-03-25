@@ -63,6 +63,35 @@ public class ChessClient {
         }
     }
 
+    public String evalSignedOut(String cmd, String... params) {
+        try {
+            return switch (cmd) {
+                case "register" -> registerUser(params);
+                case "login" -> login(params);
+                case "quit" -> "quit";
+                default -> help();
+            };
+        } catch (ResponseException ex) {
+            return ex.getMessage();
+        }
+    }
+
+    public String evalSignedIn(String cmd, String... params) {
+        try {
+            return switch (cmd) {
+                case "create" -> createGame(params);
+                case "join" -> joinGame(params);
+                case "list" -> listGames();
+                case "observe" -> observeGame(params);
+                case "logout" -> logout();
+                case "quit" -> "quit";
+                default -> help();
+            };
+        } catch (ResponseException ex) {
+            return ex.getMessage();
+        }
+    }
+
     public UserData registerUser(String... params) throws ResponseException {
         if (params.length == 3) {
             try {
