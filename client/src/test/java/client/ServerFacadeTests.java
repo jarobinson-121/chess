@@ -25,7 +25,6 @@ public class ServerFacadeTests {
         server.stop();
     }
 
-
     @Test
     public void registerPositive() throws ResponseException {
         var response = facade.registerUser("testusername", "testpassword", "testemail");
@@ -39,6 +38,23 @@ public class ServerFacadeTests {
         facade.registerUser("newuser", "password", "email");
 
         assertThrows(ResponseException.class, () -> facade.registerUser("newuser", "password", "email"));
+    }
+
+    @Test
+    public void loginPositive() throws ResponseException {
+        facade.registerUser("logintester", "loginpassword");
+
+        var response = facade.loginUser("logintester", "loginpassword");
+
+        assertEquals("logintester", response.username());
+        assertNotNull(response.authToken());
+    }
+
+    @Test
+    public void loginNegativeBadPassword() throws ResponseException {
+        facade.registerUser("badlogintester", "badloginpassword", "");
+
+        assertThrows(ResponseException.class, () -> facade.loginUser("badlogintester", "pooppassword"));
     }
 
 }
