@@ -21,6 +21,15 @@ public class ServerFacade {
         serverUrl = url;
     }
 
+    public AuthData registerUser(String... params) throws ResponseException {
+        UserData userJson = new UserData(params[0], params[1], params[2]);
+
+        HttpRequest request = buildRequest("POST", "/user", userJson);
+
+        var response = sendRequest(request);
+
+        return handleResponse(response, AuthData.class);
+    }
 
     private HttpRequest buildRequest(String method, String path, Object body) {
         var request = HttpRequest.newBuilder()
