@@ -26,7 +26,7 @@ public class ChessClient {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + ">>> " + SET_TEXT_COLOR_MAGENTA);
     }
 
     public void run() {
@@ -94,21 +94,19 @@ public class ChessClient {
     }
 
     public String registerUser(String... params) throws ResponseException {
-        if (params.length == 3) {
-            var response = server.registerUser(params[0], params[1], params[2]);
+        if (params.length >= 2 && params.length <= 3) {
+            var response = server.registerUser(params);
             token = response.authToken();
-            return String.format("Successfully logged in as %s", response.username());
+            return String.format("Successfully registered as %s", response.username());
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD> <EMAIL>");
     }
 
     public String login(String... params) throws ResponseException {
         if (params.length == 2) {
-            try {
-                return null;
-            } catch (Exception ex) {
-
-            }
+            var response = server.loginUser(params[0], params[1]);
+            token = response.authToken();
+            return String.format("Successfully logged in as %s", response.username());
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD>");
     }
