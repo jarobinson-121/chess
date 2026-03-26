@@ -5,6 +5,7 @@ import java.net.http.HttpClient;
 import com.google.gson.*;
 import exception.ResponseException;
 import models.*;
+import requests.LoginRequest;
 
 import java.net.*;
 import java.net.http.*;
@@ -22,9 +23,20 @@ public class ServerFacade {
     }
 
     public AuthData registerUser(String... params) throws ResponseException {
-        UserData userJson = new UserData(params[0], params[1], params[2]);
+        UserData userJson = (params.length == 3) ? new UserData(params[0], params[1], params[2]) :
+                new UserData(params[0], params[1], null);
 
         HttpRequest request = buildRequest("POST", "/user", userJson);
+
+        var response = sendRequest(request);
+
+        return handleResponse(response, AuthData.class);
+    }
+
+    public AuthData loginUser(String... params) throws ResponseException {
+        LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
+
+        HttpRequest request = buildRequest("POST", "/session", loginRequest);
 
         var response = sendRequest(request);
 
