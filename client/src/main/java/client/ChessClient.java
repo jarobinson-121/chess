@@ -19,6 +19,8 @@ public class ChessClient {
     private ServerFacade server;
     private State state = SIGNED_OUT;
 
+    private String token;
+
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
     }
@@ -28,7 +30,7 @@ public class ChessClient {
     }
 
     public void run() {
-        System.out.println(" Welcome to the pet store. Sign in to start.");
+        System.out.println(BLACK_KING + " Welcome to Chess The Game. Sign in to start." + WHITE_KING);
         System.out.print(help());
 
         Scanner scanner = new Scanner(System.in);
@@ -53,17 +55,16 @@ public class ChessClient {
             String[] tokens = input.toLowerCase().split(" ");
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
+            return switch (state) {
                 case SIGNED_OUT -> evalSignedOut(cmd, params);
                 case SIGNED_IN -> evalSignedIn(cmd, params);
-                default -> help();
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
     }
 
-    public String evalSignedOut(String cmd, String... params) {
+    public String evalSignedOut(String cmd, String... params) throws ResponseException {
         try {
             return switch (cmd) {
                 case "register" -> registerUser(params);
@@ -72,7 +73,7 @@ public class ChessClient {
                 default -> help();
             };
         } catch (ResponseException ex) {
-            return ex.getMessage();
+            throw new ResponseException(ex.code(), ex.getMessage());
         }
     }
 
@@ -92,18 +93,16 @@ public class ChessClient {
         }
     }
 
-    public UserData registerUser(String... params) throws ResponseException {
+    public String registerUser(String... params) throws ResponseException {
         if (params.length == 3) {
-            try {
-                server.registerUser(params[0], params[1], params[2]);
-            } catch (Exception ex) {
-
-            }
+            var response = server.registerUser(params[0], params[1], params[2]);
+            token = response.authToken();
+            return String.format("Successfully logged in as %s", response.username());
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD> <EMAIL>");
     }
 
-    public UserData login(String... params) throws ResponseException {
+    public String login(String... params) throws ResponseException {
         if (params.length == 2) {
             try {
                 return null;
@@ -114,7 +113,7 @@ public class ChessClient {
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD>");
     }
 
-    public GameData createGame(String... params) throws ResponseException {
+    public String createGame(String... params) throws ResponseException {
         if (params.length == 1) {
             try {
                 return null;
@@ -125,11 +124,11 @@ public class ChessClient {
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD>");
     }
 
-    public GameSummaryList listGames() {
+    public String listGames() {
         return null;
     }
 
-    public GameData joinGame(String... params) throws ResponseException {
+    public String joinGame(String... params) throws ResponseException {
         if (params.length == 2) {
             try {
                 return null;
@@ -137,10 +136,10 @@ public class ChessClient {
 
             }
         }
-        throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD>");
+        throw new ResponseException(ResponseException.Code.BadRequest, "Expected <ID> <WHITE | BLACK>");
     }
 
-    public GameData observeGame(String... params) throws ResponseException {
+    public String observeGame(String... params) throws ResponseException {
         if (params.length == 1) {
             try {
                 return null;
@@ -148,10 +147,10 @@ public class ChessClient {
 
             }
         }
-        throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD>");
+        throw new ResponseException(ResponseException.Code.BadRequest, "Expected <ID>");
     }
 
-    public GameData logout(String... params) throws ResponseException {
+    public String logout(String... params) throws ResponseException {
         if (params.length == 0) {
             try {
                 return null;
