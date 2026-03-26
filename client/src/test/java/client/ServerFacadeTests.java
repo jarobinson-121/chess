@@ -1,9 +1,11 @@
 package client;
 
+import exception.ResponseException;
 import org.junit.jupiter.api.*;
 import server.Server;
 import server.ServerFacade;
 
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ServerFacadeTests {
 
@@ -25,8 +27,18 @@ public class ServerFacadeTests {
 
 
     @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
+    public void registerPositive() throws ResponseException {
+        var response = facade.registerUser("testusername", "testpassword", "testemail");
+
+        assertEquals("testusername", response.username());
+        assertNotNull(response.authToken());
+    }
+
+    @Test
+    public void registerNegativeTakenUsername() throws ResponseException {
+        facade.registerUser("newuser", "password", "email");
+
+        assertThrows(ResponseException.class, () -> facade.registerUser("newuser", "password", "email"));
     }
 
 }
