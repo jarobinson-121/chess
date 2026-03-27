@@ -22,6 +22,9 @@ public class CreateGameHandler implements Handler {
             throw new ResponseException(ResponseException.Code.BadRequest, "Error: Bad Request");
         }
         String gameName = new Gson().fromJson(ctx.body(), CreateGameRequest.class).gameName();
+        if (gameName == null) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "Error: Bad Request");
+        }
         GameData game = createGameService.createGame(token, gameName);
         String response = String.format("{\"gameID\": %d}", game.gameID());
         ctx.status(200).result(response);
