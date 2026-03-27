@@ -46,13 +46,16 @@ public class ServerFacade {
     }
 
     public CreateGameResult createGame(String token, String... params) throws ResponseException {
-        CreateGameRequest createGameRequest = new CreateGameRequest(params[0]);
+        if (params != null) {
+            CreateGameRequest createGameRequest = new CreateGameRequest(params[0]);
 
-        HttpRequest request = buildRequest("POST", "/game", token, createGameRequest);
+            HttpRequest request = buildRequest("POST", "/game", token, createGameRequest);
 
-        var response = sendRequest(request);
+            var response = sendRequest(request);
 
-        return handleResponse(response, CreateGameResult.class);
+            return handleResponse(response, CreateGameResult.class);
+        }
+        throw new ResponseException(ResponseException.Code.BadRequest, "Expected <NAME>");
     }
 
     private HttpRequest buildRequest(String method, String path, String token, Object body) {
