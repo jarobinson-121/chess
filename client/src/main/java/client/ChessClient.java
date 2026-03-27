@@ -32,6 +32,7 @@ public class ChessClient {
     public void run() {
         System.out.println(BLACK_KING + " Welcome to Chess The Game. Sign in to start." + WHITE_KING);
         System.out.print(help());
+        System.out.print(SET_TEXT_COLOR_BLUE);
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -97,6 +98,7 @@ public class ChessClient {
         if (params.length >= 2 && params.length <= 3) {
             var response = server.registerUser(params);
             token = response.authToken();
+            state = SIGNED_IN;
             return String.format("Successfully registered as %s", response.username());
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD> <EMAIL>");
@@ -106,6 +108,7 @@ public class ChessClient {
         if (params.length == 2) {
             var response = server.loginUser(params[0], params[1]);
             token = response.authToken();
+            state = SIGNED_IN;
             return String.format("Successfully logged in as %s", response.username());
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD>");
@@ -113,11 +116,8 @@ public class ChessClient {
 
     public String createGame(String... params) throws ResponseException {
         if (params.length == 1) {
-            try {
-                return null;
-            } catch (Exception ex) {
-
-            }
+            var response = server.createGame(token, params);
+            return String.format("Successfully created game: %d", response.gameID());
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD>");
     }
