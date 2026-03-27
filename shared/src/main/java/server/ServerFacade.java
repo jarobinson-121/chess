@@ -5,7 +5,9 @@ import java.net.http.HttpClient;
 import com.google.gson.*;
 import exception.ResponseException;
 import models.*;
+import requests.CreateGameRequest;
 import requests.LoginRequest;
+import results.CreateGameResult;
 
 import java.net.*;
 import java.net.http.*;
@@ -26,7 +28,7 @@ public class ServerFacade {
         UserData userJson = (params.length == 3) ? new UserData(params[0], params[1], params[2]) :
                 new UserData(params[0], params[1], null);
 
-        HttpRequest request = buildRequest("POST", "/user", userJson);
+        HttpRequest request = buildRequest("POST", "/user", null, userJson);
 
         var response = sendRequest(request);
 
@@ -36,19 +38,32 @@ public class ServerFacade {
     public AuthData loginUser(String... params) throws ResponseException {
         LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
 
-        HttpRequest request = buildRequest("POST", "/session", loginRequest);
+        HttpRequest request = buildRequest("POST", "/session", null, loginRequest);
 
         var response = sendRequest(request);
 
         return handleResponse(response, AuthData.class);
     }
 
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    public CreateGameResult createGame(String token, String... params) throws ResponseException {
+        CreateGameRequest createGameRequest = new CreateGameRequest(params[0]);
+
+        HttpRequest request = buildRequest("POST", "/game", token, createGameRequest);
+
+        var response = sendRequest(request);
+
+        return handleResponse(response, CreateGameResult.class);
+    }
+
+    private HttpRequest buildRequest(String method, String path, String token, Object body) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
+        }
+        if (token != null) {
+            request.setHeader("Authorization", token);
         }
         return request.build();
     }
