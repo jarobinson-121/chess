@@ -20,6 +20,11 @@ public class ServerFacadeTests {
         facade = new ServerFacade(url);
     }
 
+    @BeforeEach
+    void clearServer() throws ResponseException {
+        facade.clearDB();
+    }
+
     @AfterAll
     static void stopServer() {
         server.stop();
