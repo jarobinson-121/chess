@@ -74,6 +74,12 @@ public class ServerFacade {
         throw new ResponseException(ResponseException.Code.BadRequest, "Unable to retrieve");
     }
 
+    public void clearDB() throws ResponseException {
+        HttpRequest request = buildRequest("DELETE", "/db", null, null);
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
+
     private HttpRequest buildRequest(String method, String path, String token, Object body) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
