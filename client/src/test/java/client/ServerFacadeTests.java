@@ -74,4 +74,20 @@ public class ServerFacadeTests {
 
         assertThrows(ResponseException.class, () -> facade.createGame(user.authToken(), null));
     }
+
+    @Test
+    public void listGamesPositive() throws ResponseException {
+        var user = facade.registerUser("listtester", "listtesterpassword", "email");
+
+        facade.createGame(user.authToken(), "game1");
+        facade.createGame(user.authToken(), "game2");
+        facade.createGame(user.authToken(), "game3");
+        facade.createGame(user.authToken(), "game1");
+
+        var response = facade.listGames(user.authToken());
+
+        assertNotNull(response);
+        assertEquals(4, response.games().size());
+        assertEquals("game1", response.games().get(0).gameName());
+    }
 }
