@@ -1,10 +1,7 @@
 package client;
 
 import exception.ResponseException;
-import models.GameData;
 import models.GameSummary;
-import models.GameSummaryList;
-import models.UserData;
 import server.ServerFacade;
 import server.State;
 
@@ -13,8 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-import static server.State.SIGNED_IN;
-import static server.State.SIGNED_OUT;
+import static server.State.*;
 import static ui.EscapeSequences.*;
 
 public class ChessClient {
@@ -25,6 +21,10 @@ public class ChessClient {
     private String token;
 
     private final Map<Integer, GameSummary> lastListedGames = new HashMap<>();
+
+    private int gameID;
+
+    private String playerColor;
 
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -64,6 +64,8 @@ public class ChessClient {
             return switch (state) {
                 case SIGNED_OUT -> evalSignedOut(cmd, params);
                 case SIGNED_IN -> evalSignedIn(cmd, params);
+                case PLAYING_GAME -> evalPlayer(cmd, params);
+                case OBSERVER -> evalObserver(cmd, params);
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
@@ -92,6 +94,28 @@ public class ChessClient {
                 case "observe" -> observeGame(params);
                 case "logout" -> logout();
                 case "quit" -> "quit";
+                default -> help();
+            };
+        } catch (ResponseException ex) {
+            return ex.getMessage();
+        }
+    }
+
+    public String evalPlayer(String cmd, String... params) {
+        try {
+            return switch (cmd) {
+                case "exit" -> createGame(params);
+                default -> help();
+            };
+        } catch (ResponseException ex) {
+            return ex.getMessage();
+        }
+    }
+
+    public String evalObserver(String cmd, String... params) {
+        try {
+            return switch (cmd) {
+                case "exit" -> createGame(params);
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -154,11 +178,16 @@ public class ChessClient {
 
     public String joinGame(String... params) throws ResponseException {
         if (params.length == 2) {
-            try {
-                return null;
-            } catch (Exception ex) {
+            int localId = Integer.parseInt(params[0]);
+            if (lastListedGames.containsKey(localId)) {
+                server.joinGame(token, params);
+                gameID = Integer.parseInt(params[0]);
+                playerColor = params[1];
 
+                return "Successfully joined game %d." + gameID;
             }
+            throw new ResponseException(ResponseException.Code.BadRequest, "Invalid game ID. " +
+                    "Use list command to view active games.");
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <ID> <WHITE | BLACK>");
     }
@@ -192,14 +221,24 @@ public class ChessClient {
                     - login <USERNAME> <PASSWORD>
                     - quit
                     """;
+        } else if (state == SIGNED_IN) {
+            return """
+                    - create <NAME>
+                    - list
+                    - join <ID> <WHITE | BLACK>
+                    - observe <ID>
+                    - logout
+                    - quit
+                    - help
+                    """;
+        } else if (state == PLAYING_GAME) {
+            return """
+                    - exit
+                    - help
+                    """;
         }
         return """
-                - create <NAME>
-                - list
-                - join <ID> <WHITE | BLACK>
-                - observe <ID>
-                - logout
-                - quit
+                - exit
                 - help
                 """;
     }
