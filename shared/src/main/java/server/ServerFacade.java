@@ -8,12 +8,16 @@ import models.*;
 import requests.CreateGameRequest;
 import requests.LoginRequest;
 import results.CreateGameResult;
+import results.ListGamesResult;
 
 import java.net.*;
 import java.net.http.*;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ServerFacade {
 
@@ -56,6 +60,18 @@ public class ServerFacade {
             return handleResponse(response, CreateGameResult.class);
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <NAME>");
+    }
+
+    public ListGamesResult listGames(String token) throws ResponseException {
+        if (token != null) {
+            HttpRequest request = buildRequest("GET", "/game", token, null);
+
+            var response = sendRequest(request);
+
+            return handleResponse(response, ListGamesResult.class);
+
+        }
+        throw new ResponseException(ResponseException.Code.BadRequest, "Unable to retrieve");
     }
 
     private HttpRequest buildRequest(String method, String path, String token, Object body) {
