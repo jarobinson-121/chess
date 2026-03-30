@@ -2,12 +2,15 @@ package client;
 
 import exception.ResponseException;
 import models.GameData;
+import models.GameSummary;
 import models.GameSummaryList;
 import models.UserData;
 import server.ServerFacade;
 import server.State;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import static server.State.SIGNED_IN;
@@ -20,6 +23,8 @@ public class ChessClient {
     private State state = SIGNED_OUT;
 
     private String token;
+
+    private final Map<Integer, GameSummary> lastListedGames = new HashMap<>();
 
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -122,8 +127,29 @@ public class ChessClient {
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD>");
     }
 
-    public String listGames() {
-        return null;
+    public String listGames() throws ResponseException {
+        var response = server.listGames(token);
+
+        if (response.games().isEmpty()) {
+            return "No games right now.";
+        }
+
+        lastListedGames.clear();
+
+        StringBuilder output = new StringBuilder();
+        int clientId = 1;
+
+        for (GameSummary game : response.games()) {
+            lastListedGames.put(clientId, game);
+
+            output.append(String.format("%d. %s | White Player: %s | Black Player : %s",
+                    clientId++,
+                    game.gameName(),
+                    game.whiteUsername(),
+                    game.blackUsername()));
+        }
+
+        return output.toString();
     }
 
     public String joinGame(String... params) throws ResponseException {
