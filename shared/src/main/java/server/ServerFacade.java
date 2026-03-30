@@ -6,6 +6,7 @@ import com.google.gson.*;
 import exception.ResponseException;
 import models.*;
 import requests.CreateGameRequest;
+import requests.JoinGameRequest;
 import requests.LoginRequest;
 import results.CreateGameResult;
 import results.ListGamesResult;
@@ -15,9 +16,6 @@ import java.net.http.*;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ServerFacade {
 
@@ -72,6 +70,18 @@ public class ServerFacade {
 
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Unable to retrieve");
+    }
+
+    public void joinGame(String token, String... params) throws ResponseException {
+        if (token != null) {
+            JoinGameRequest joinGameRequest = new JoinGameRequest(params[1], Integer.parseInt(params[0]));
+
+            HttpRequest request = buildRequest("PUT", "/game", token, joinGameRequest);
+
+            var response = sendRequest(request);
+
+            handleResponse(response, null);
+        }
     }
 
     public void clearDB() throws ResponseException {
