@@ -217,6 +217,8 @@ public class ChessClient {
                 state = OBSERVER;
                 DrawBoard drawBoard = new DrawBoard("white", new ChessGame());
                 drawBoard.main("white");
+
+                return "Observing game: " + localId;
             }
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <ID>");
