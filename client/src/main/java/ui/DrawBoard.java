@@ -48,6 +48,9 @@ public class DrawBoard {
 
         drawHeaders(out, headers);
 
+        out.print(RESET_BG_COLOR);
+        out.println();
+
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
     }
@@ -105,9 +108,9 @@ public class DrawBoard {
             // I think this is where I'd put row header print statements?
             for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
                 if ((row + boardCol) % 2 == 0) {
-                    setWhite(out);
+                    setLightGray(out);
                 } else {
-                    setBlack(out);
+                    setDarkGray(out);
                 }
 
 
@@ -128,11 +131,9 @@ public class DrawBoard {
                     out.print(EMPTY.repeat(SQUARE_WIDTH_IN_CHARS));
                 }
 
-//                if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
-//                    // Draw vertical column separator.
-//                    setRed(out);
-//                    out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
-//                }
+                if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
+                    out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
+                }
 
                 if (boardCol % 2 == 0) {
                     setBlack(out);
@@ -169,7 +170,7 @@ public class DrawBoard {
         boolean whitePiece = (piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? true : false;
 
         out.print((whitePiece) ?
-                SET_TEXT_COLOR_MAGENTA : SET_TEXT_COLOR_GREEN);
+                SET_TEXT_COLOR_GREEN : SET_TEXT_COLOR_BLUE);
 
         return switch (piece.getPieceType()) {
             case KING -> "K";
@@ -193,6 +194,11 @@ public class DrawBoard {
 
     private static void setBlack(PrintStream out) {
         out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private static void setLightGray(PrintStream out) {
+        out.print(SET_BG_COLOR_LIGHT_GREY);
         out.print(SET_TEXT_COLOR_BLACK);
     }
 
