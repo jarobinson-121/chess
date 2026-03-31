@@ -105,24 +105,34 @@ public class ChessClient {
 
     public String evalPlayer(String cmd, String... params) {
         try {
-            return switch (cmd) {
-                case "exit" -> createGame(params);
-                default -> help();
-            };
-        } catch (ResponseException ex) {
+            switch (cmd) {
+                case "exit":
+                    state = SIGNED_IN;
+                    return "Exited game, returning to menu.\n" + help();
+                default:
+                    help();
+            }
+            ;
+        } catch (Exception ex) {
             return ex.getMessage();
         }
+        return null;
     }
 
     public String evalObserver(String cmd, String... params) {
         try {
-            return switch (cmd) {
-                case "exit" -> createGame(params);
-                default -> help();
-            };
-        } catch (ResponseException ex) {
+            switch (cmd) {
+                case "exit":
+                    state = SIGNED_IN;
+                    return "Exited observation, returning to menu.\n" + help();
+                default:
+                    help();
+            }
+            ;
+        } catch (Exception ex) {
             return ex.getMessage();
         }
+        return null;
     }
 
     public String registerUser(String... params) throws ResponseException {
@@ -148,6 +158,8 @@ public class ChessClient {
     public String createGame(String... params) throws ResponseException {
         if (params.length == 1) {
             var response = server.createGame(token, params);
+            lastListedGames.put(lastListedGames.size() + 1,
+                    new GameSummary(response.gameID(), null, null, null));
             return String.format("Successfully created game: %d", response.gameID());
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD>");
@@ -200,9 +212,8 @@ public class ChessClient {
 
     public String observeGame(String... params) throws ResponseException {
         if (params.length == 1) {
-            try {
-                return null;
-            } catch (Exception ex) {
+            int localId = Integer.parseInt(params[0]);
+            if (lastListedGames.containsKey(localId)) {
 
             }
         }
