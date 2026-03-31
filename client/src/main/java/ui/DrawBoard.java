@@ -62,7 +62,7 @@ public class DrawBoard {
     private void drawHeaders(PrintStream out, String[] headers) {
 
         setBlack(out);
-        out.print(EMPTY.repeat(4));
+        columnPadding(out);
 
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             drawHeader(out, headers[boardCol]);
@@ -71,8 +71,8 @@ public class DrawBoard {
                 out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
             }
         }
-        
-        out.print(EMPTY.repeat(3));
+
+        columnPadding(out);
         out.print(RESET_BG_COLOR);
         out.println();
     }
@@ -118,7 +118,6 @@ public class DrawBoard {
             addColumnHeader(out, columns, printSymbol, boardRow);
 
             out.print(SET_BG_COLOR_BLACK);
-            out.print(EMPTY);
             for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
                 if ((boardRow + boardCol) % 2 == 0) {
                     setLightGray(out);
@@ -233,6 +232,10 @@ public class DrawBoard {
     private static void setDarkGray(PrintStream out) {
         out.print(SET_BG_COLOR_DARK_GREY);
         out.print(SET_TEXT_COLOR_WHITE);
+    }
+
+    private static void columnPadding(PrintStream out) {
+        out.print(EMPTY.repeat(3));
     }
 
     private static void printPiece(PrintStream out, String player, String color) {
