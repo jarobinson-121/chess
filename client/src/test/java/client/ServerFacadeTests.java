@@ -133,4 +133,19 @@ public class ServerFacadeTests {
 
         assertThrows(ResponseException.class, () -> facade.joinGame(user.authToken(), game.gameID(), "WHITE"));
     }
+
+    @Test
+    public void clearDbTestPositive() throws ResponseException {
+        var user1 = facade.registerUser("user1", "password", "email");
+        facade.registerUser("user2", "password", "email");
+        facade.registerUser("user3", "password", "email");
+
+        facade.createGame(user1.authToken(), "clearGame");
+        facade.createGame(user1.authToken(), "clearGame");
+        facade.createGame(user1.authToken(), "clearGame");
+
+        facade.clearDB();
+
+        assertThrows(Exception.class, () -> facade.createGame(user1.authToken()));
+    }
 }
