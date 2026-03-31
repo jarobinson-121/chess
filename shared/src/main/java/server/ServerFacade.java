@@ -72,9 +72,9 @@ public class ServerFacade {
         throw new ResponseException(ResponseException.Code.BadRequest, "Unable to retrieve");
     }
 
-    public void joinGame(String token, String... params) throws ResponseException {
+    public void joinGame(String token, int id, String color) throws ResponseException {
         if (token != null) {
-            JoinGameRequest joinGameRequest = new JoinGameRequest(params[1], Integer.parseInt(params[0]));
+            JoinGameRequest joinGameRequest = new JoinGameRequest(color, id);
 
             HttpRequest request = buildRequest("PUT", "/game", token, joinGameRequest);
 
