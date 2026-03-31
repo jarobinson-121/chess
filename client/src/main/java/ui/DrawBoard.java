@@ -159,20 +159,6 @@ public class DrawBoard {
         }
     }
 
-//    private static void drawHorizontalLine(PrintStream out) {
-//
-//        int boardSizeInSpaces = BOARD_SIZE_IN_SQUARES * SQUARE_WIDTH_IN_CHARS +
-//                (BOARD_SIZE_IN_SQUARES - 1) * LINE_WIDTH_IN_PADDED_CHARS;
-//
-//        for (int lineRow = 0; lineRow < LINE_WIDTH_IN_PADDED_CHARS; ++lineRow) {
-//            setRed(out);
-//            out.print(EMPTY.repeat(boardSizeInSpaces));
-//
-//            setBlack(out);
-//            out.println();
-//        }
-//    }
-
     private static void addColumnHeader(PrintStream out, String[] columns, boolean printSymbol, int boardRow) {
         out.print(SET_TEXT_COLOR_WHITE);
         out.print(SET_BG_COLOR_BLACK);
@@ -212,11 +198,6 @@ public class DrawBoard {
     private static void setWhite(PrintStream out) {
         out.print(SET_BG_COLOR_WHITE);
         out.print(SET_TEXT_COLOR_WHITE);
-    }
-
-    private static void setRed(PrintStream out) {
-        out.print(SET_BG_COLOR_RED);
-        out.print(SET_TEXT_COLOR_RED);
     }
 
     private static void setBlack(PrintStream out) {
