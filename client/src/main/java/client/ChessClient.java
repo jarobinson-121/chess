@@ -1,9 +1,11 @@
 package client;
 
+import chess.ChessGame;
 import exception.ResponseException;
 import models.GameSummary;
 import server.ServerFacade;
 import server.State;
+import ui.DrawBoard;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -166,7 +168,7 @@ public class ChessClient {
         for (GameSummary game : response.games()) {
             lastListedGames.put(clientId, game);
 
-            output.append(String.format("%d. %s | White Player: %s | Black Player : %s",
+            output.append(String.format("%d. %s | White Player: %s | Black Player : %s \n",
                     clientId++,
                     game.gameName(),
                     game.whiteUsername(),
@@ -180,11 +182,15 @@ public class ChessClient {
         if (params.length == 2) {
             int localId = Integer.parseInt(params[0]);
             if (lastListedGames.containsKey(localId)) {
-                server.joinGame(token, params);
+                server.joinGame(token, lastListedGames.get(localId).gameID(), params[1]);
                 gameID = Integer.parseInt(params[0]);
                 playerColor = params[1];
+                state = PLAYING_GAME;
 
-                return "Successfully joined game %d." + gameID;
+                DrawBoard drawBoard = new DrawBoard(playerColor, new ChessGame());
+                drawBoard.main(playerColor);
+
+                return "Successfully joined game: " + gameID;
             }
             throw new ResponseException(ResponseException.Code.BadRequest, "Invalid game ID. " +
                     "Use list command to view active games.");
