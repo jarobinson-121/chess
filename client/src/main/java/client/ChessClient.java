@@ -7,6 +7,7 @@ import server.ServerFacade;
 import server.State;
 import ui.DrawBoard;
 
+import java.net.http.HttpRequest;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -180,7 +181,7 @@ public class ChessClient {
         for (GameSummary game : response.games()) {
             lastListedGames.put(clientId, game);
 
-            output.append(String.format("%d. %s | White Player: %s | Black Player : %s",
+            output.append(String.format("%d. %s | White Player: %s | Black Player : %s \n",
                     clientId++,
                     game.gameName(),
                     game.whiteUsername(),
@@ -192,7 +193,7 @@ public class ChessClient {
 
     public String joinGame(String... params) throws ResponseException {
         if (params.length == 2) {
-            int localId = Integer.parseInt(params[0]);
+            int localId = validNum(params[0]);
             if (lastListedGames.containsKey(localId)) {
                 server.joinGame(token, lastListedGames.get(localId).gameID(), params[1]);
                 gameID = Integer.parseInt(params[0]);
@@ -212,7 +213,7 @@ public class ChessClient {
 
     public String observeGame(String... params) throws ResponseException {
         if (params.length == 1) {
-            int localId = Integer.parseInt(params[0]);
+            int localId = validNum(params[0]);
             if (lastListedGames.containsKey(localId)) {
                 state = OBSERVER;
                 DrawBoard drawBoard = new DrawBoard("white", new ChessGame());
@@ -226,13 +227,13 @@ public class ChessClient {
 
     public String logout(String... params) throws ResponseException {
         if (params.length == 0) {
-            try {
-                return null;
-            } catch (Exception ex) {
+            server.logout(token);
+            state = SIGNED_OUT;
+            token = null;
 
-            }
+            return "Successfully logged out.";
         }
-        throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD>");
+        throw new ResponseException(ResponseException.Code.BadRequest, "Expected logout");
     }
 
     public String help() {
@@ -241,6 +242,7 @@ public class ChessClient {
                     - register <USERNAME> <PASSWORD> <EMAIL>
                     - login <USERNAME> <PASSWORD>
                     - quit
+                    - help
                     """;
         } else if (state == SIGNED_IN) {
             return """
@@ -262,6 +264,15 @@ public class ChessClient {
                 - exit
                 - help
                 """;
+    }
+
+    private int validNum(String param) throws ResponseException {
+        try {
+            int number = Integer.parseInt(param);
+            return number;
+        } catch (NumberFormatException e) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "ID must be a number.");
+        }
     }
 
 }

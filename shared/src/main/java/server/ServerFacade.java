@@ -84,6 +84,16 @@ public class ServerFacade {
         }
     }
 
+    public void logout(String token) throws ResponseException {
+        if (token != null) {
+            HttpRequest request = buildRequest("DELETE", "/session", token, null);
+
+            var response = sendRequest(request);
+
+            handleResponse(response, null);
+        }
+    }
+
     public void clearDB() throws ResponseException {
         HttpRequest request = buildRequest("DELETE", "/db", null, null);
         var response = sendRequest(request);
