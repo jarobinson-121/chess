@@ -62,6 +62,7 @@ public class DrawBoard {
     private void drawHeaders(PrintStream out, String[] headers) {
 
         setBlack(out);
+        out.print(EMPTY.repeat(4));
 
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             drawHeader(out, headers[boardCol]);
@@ -70,6 +71,8 @@ public class DrawBoard {
                 out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
             }
         }
+        
+        out.print(EMPTY.repeat(3));
         out.print(RESET_BG_COLOR);
         out.println();
     }
