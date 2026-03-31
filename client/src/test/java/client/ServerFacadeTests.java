@@ -105,7 +105,32 @@ public class ServerFacadeTests {
         facade.createGame(user.authToken(), "game3");
         facade.createGame(user.authToken(), "game1");
 
-
         assertThrows(ResponseException.class, () -> facade.listGames("bad-token"));
+    }
+
+    @Test
+    public void joinGameSuccess() throws ResponseException {
+        var user = facade.registerUser("jointester", "joinpassword", "email");
+
+        var game = facade.createGame(user.authToken(), "joingame");
+
+        facade.joinGame(user.authToken(), game.gameID(), "WHITE");
+
+        var list = facade.listGames(user.authToken()).games();
+
+        assertNotNull(list);
+        assertEquals("jointester", list.get(0).whiteUsername());
+    }
+
+    @Test
+    public void joinGameNegativeTaken() throws ResponseException {
+        var user = facade.registerUser("joinbadtester", "joinbadpass", "email");
+        var otherUser = facade.registerUser("tookit", "tookitpass", "email");
+
+        var game = facade.createGame(user.authToken(), "canttouchthis");
+
+        facade.joinGame(otherUser.authToken(), game.gameID(), "WHITE");
+
+        assertThrows(ResponseException.class, () -> facade.joinGame(user.authToken(), game.gameID(), "WHITE"));
     }
 }
