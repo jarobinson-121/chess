@@ -38,13 +38,17 @@ public class DrawBoard {
         String[] whiteHeaders = {"A", "B", "C", "D", "E", "F", "G", "H"};
         String[] blackHeaders = {"H", "G", "F", "E", "D", "C", "B", "A"};
 
+        String[] whiteBorders = {"1", "2", "3", "4", "5", "6", "7", "8"};
+        String[] blackBorders = {"8", "7", "6", "5", "4", "3", "2", "1"};
+
         out.print(ERASE_SCREEN);
 
         String[] headers = (playerColor.equals("white")) ? whiteHeaders : blackHeaders;
+        String[] columns = (playerColor.equals("white")) ? whiteBorders : blackBorders;
 
         drawHeaders(out, headers);
 
-        drawChessBoard(out, playerColor, board);
+        drawChessBoard(out, columns, playerColor, board);
 
         drawHeaders(out, headers);
 
@@ -57,7 +61,7 @@ public class DrawBoard {
 
     private void drawHeaders(PrintStream out, String[] headers) {
 
-        setDarkGray(out);
+        setBlack(out);
 
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             drawHeader(out, headers[boardCol]);
@@ -80,7 +84,6 @@ public class DrawBoard {
     }
 
     private static void printHeaderText(PrintStream out, String headers) {
-        out.print(SET_BG_COLOR_DARK_GREY);
         out.print(SET_TEXT_COLOR_WHITE);
 
         out.print(headers);
@@ -88,24 +91,34 @@ public class DrawBoard {
         setBlack(out);
     }
 
-    private static void drawChessBoard(PrintStream out, String playerColor, ChessBoard board) {
+    private static void drawChessBoard(PrintStream out, String[] columns, String playerColor, ChessBoard board) {
 
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
 
-            drawRowOfSquares(out, playerColor, boardRow, board);
+            drawRowOfSquares(out, playerColor, columns, boardRow, board);
 
             if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
-                // Draw horizontal row separator.
-//                drawHorizontalLine(out);
                 setBlack(out);
             }
         }
     }
 
-    private static void drawRowOfSquares(PrintStream out, String color, int row, ChessBoard board) {
+    private static void drawRowOfSquares(PrintStream out, String color, String[] columns, int row, ChessBoard board) {
 
         for (int squareRow = 0; squareRow < SQUARE_HEIGHT_IN_CHARS; ++squareRow) {
-            // I think this is where I'd put row header print statements?
+            boolean printSymbol = (squareRow == SQUARE_HEIGHT_IN_CHARS / 2) ? true : false;
+
+            out.print(SET_TEXT_COLOR_WHITE);
+            out.print(SET_BG_COLOR_BLACK);
+
+            if (printSymbol) {
+                out.print(columns[squareRow]);
+            } else {
+                out.print(EMPTY);
+            }
+
+            out.print(SET_BG_COLOR_BLACK);
+            out.print(EMPTY);
             for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
                 if ((row + boardCol) % 2 == 0) {
                     setLightGray(out);
@@ -114,7 +127,7 @@ public class DrawBoard {
                 }
 
 
-                if (squareRow == SQUARE_HEIGHT_IN_CHARS / 2) {
+                if (printSymbol) {
                     int prefixLength = SQUARE_WIDTH_IN_CHARS / 2;
                     int suffixLength = SQUARE_WIDTH_IN_CHARS - prefixLength - 1;
 
