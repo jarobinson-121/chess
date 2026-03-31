@@ -103,24 +103,21 @@ public class DrawBoard {
         }
     }
 
-    private static void drawRowOfSquares(PrintStream out, String color, String[] columns, int row, ChessBoard board) {
+    private static void drawRowOfSquares(PrintStream out,
+                                         String color,
+                                         String[] columns,
+                                         int boardRow,
+                                         ChessBoard board) {
 
         for (int squareRow = 0; squareRow < SQUARE_HEIGHT_IN_CHARS; ++squareRow) {
             boolean printSymbol = (squareRow == SQUARE_HEIGHT_IN_CHARS / 2) ? true : false;
 
-            out.print(SET_TEXT_COLOR_WHITE);
-            out.print(SET_BG_COLOR_BLACK);
-
-            if (printSymbol) {
-                out.print(columns[squareRow]);
-            } else {
-                out.print(EMPTY);
-            }
+            addColumnHeader(out, columns, printSymbol, boardRow);
 
             out.print(SET_BG_COLOR_BLACK);
             out.print(EMPTY);
             for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
-                if ((row + boardCol) % 2 == 0) {
+                if ((boardRow + boardCol) % 2 == 0) {
                     setLightGray(out);
                 } else {
                     setDarkGray(out);
@@ -131,7 +128,7 @@ public class DrawBoard {
                     int prefixLength = SQUARE_WIDTH_IN_CHARS / 2;
                     int suffixLength = SQUARE_WIDTH_IN_CHARS - prefixLength - 1;
 
-                    int posRow = (color.equals("white")) ? 8 - row : row + 1;
+                    int posRow = (color.equals("white")) ? 8 - boardRow : boardRow + 1;
                     int posCol = (color.equals("white")) ? boardCol + 1 : 8 - boardCol;
 
                     ChessPosition pos = new ChessPosition(posRow, posCol);
@@ -154,6 +151,7 @@ public class DrawBoard {
                     setWhite(out);
                 }
             }
+            addColumnHeader(out, columns, printSymbol, boardRow);
             out.print(RESET_BG_COLOR);
             out.println();
         }
@@ -172,6 +170,20 @@ public class DrawBoard {
 //            out.println();
 //        }
 //    }
+
+    private static void addColumnHeader(PrintStream out, String[] columns, boolean printSymbol, int boardRow) {
+        out.print(SET_TEXT_COLOR_WHITE);
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(EMPTY);
+
+        if (printSymbol) {
+            out.print(columns[boardRow]);
+        } else {
+            out.print(EMPTY);
+        }
+
+        out.print(EMPTY);
+    }
 
     private static String getPiece(PrintStream out, String color, ChessPosition pos, ChessBoard board) {
         ChessPiece piece = board.getPiece(pos);
