@@ -180,7 +180,7 @@ public class ChessClient {
         for (GameSummary game : response.games()) {
             lastListedGames.put(clientId, game);
 
-            output.append(String.format("%d. %s | White Player: %s | Black Player : %s \n",
+            output.append(String.format("%d. %s | White Player: %s | Black Player : %s",
                     clientId++,
                     game.gameName(),
                     game.whiteUsername(),
@@ -214,7 +214,9 @@ public class ChessClient {
         if (params.length == 1) {
             int localId = Integer.parseInt(params[0]);
             if (lastListedGames.containsKey(localId)) {
-
+                state = OBSERVER;
+                DrawBoard drawBoard = new DrawBoard("white", new ChessGame());
+                drawBoard.main("white");
             }
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <ID>");
