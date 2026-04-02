@@ -163,7 +163,7 @@ public class ChessClient {
                     new GameSummary(response.gameID(), null, null, null));
             return String.format("Successfully created game: %d", response.gameID());
         }
-        throw new ResponseException(ResponseException.Code.BadRequest, "Expected <USERNAME> <PASSWORD>");
+        throw new ResponseException(ResponseException.Code.BadRequest, "Expected <NAME>");
     }
 
     public String listGames() throws ResponseException {
