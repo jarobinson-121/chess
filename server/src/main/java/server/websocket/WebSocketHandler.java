@@ -1,9 +1,15 @@
 package server.websocket;
 
+import com.google.gson.Gson;
 import exception.ResponseException;
 import io.javalin.websocket.*;
+import websocket.commands.UserGameCommand;
+import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+
+import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
@@ -18,10 +24,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleMessage(WsMessageContext ctx) {
         try {
-            Action action = new Gson().fromJson(ctx.message(), Action.class);
-            switch (action.type()) {
-                case ENTER -> enter(action.visitorName(), ctx.session);
-                case EXIT -> exit(action.visitorName(), ctx.session);
+            UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
+            switch (command.getCommandType()) {
+                case CONNECT -> enter(command.getCommandType(), ctx.session);
+                case MAKE_MOVE -> makeMove();
+                case RESIGN -> exit(command.getCommandType(), ctx.session);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -33,25 +40,29 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void enter(String visitorName, Session session) throws IOException {
+    private void enter(UserGameCommand.CommandType type, String token, Session session) throws IOException {
         connections.add(session);
-        var message = String.format("%s is in the shop", visitorName);
-        var notification = new Notification(Notification.Type.ARRIVAL, message);
-        connections.broadcast(session, notification);
+//        var msg_string = String.format("%s is in the shop",);
+        var message = new ServerMessage(NOTIFICATION);
+        connections.broadcast(session, message);
     }
 
     private void exit(String visitorName, Session session) throws IOException {
-        var message = String.format("%s left the shop", visitorName);
-        var notification = new Notification(Notification.Type.DEPARTURE, message);
-        connections.broadcast(session, notification);
+        var msg_string = String.format("%s left the shop", visitorName);
+        var ServerMessage = new ServerMessage(NOTIFICATION);
+        connections.broadcast(session, ServerMessage);
         connections.remove(session);
+    }
+
+    public void makeMove() {
+
     }
 
     public void makeNoise(String petName, String sound) throws ResponseException {
         try {
-            var message = String.format("%s says %s", petName, sound);
-            var notification = new Notification(Notification.Type.NOISE, message);
-            connections.broadcast(null, notification);
+            var msg_string = String.format("%s says %s", petName, sound);
+            var ServerMessage = new ServerMessage(ServerMessage.Type.NOISE, msg_string);
+            connections.broadcast(null, ServerMessage);
         } catch (Exception ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
