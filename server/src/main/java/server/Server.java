@@ -14,6 +14,7 @@ import exception.ResponseException;
 import handlers.*;
 import io.javalin.*;
 import io.javalin.http.Context;
+import server.websocket.WebSocketHandler;
 import service.*;
 
 public class Server {
@@ -29,6 +30,7 @@ public class Server {
     private final JoinGameService joinGameService;
     private final ListGamesService listGamesService;
     private final ClearDBService clearDBService;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() {
 
@@ -52,6 +54,7 @@ public class Server {
         this.joinGameService = new JoinGameService(authDao, gameDao);
         this.listGamesService = new ListGamesService(authDao, gameDao);
         this.clearDBService = new ClearDBService(authDao, gameDao, userDao);
+        this.webSocketHandler = new WebSocketHandler();
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
 
@@ -62,9 +65,12 @@ public class Server {
                 .put("/game", new JoinGameHandler(joinGameService))
                 .get("/game", new ListGamesHandler(listGamesService))
                 .delete("/db", new ClearDBHandler(clearDBService))
-                .exception(ResponseException.class, this::exceptionHandler);
-
-        // Register your endpoints and exception handlers here.
+                .exception(ResponseException.class, this::exceptionHandler)
+                .ws("/ws", ws -> {
+                    ws.onConnect(webSocketHandler);
+                    ws.onMessage(webSocketHandler);
+                    ws.onClose(webSocketHandler);
+                });
 
     }
 
