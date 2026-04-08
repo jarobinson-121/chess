@@ -1,8 +1,11 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import dataaccess.daomodels.AuthDao;
+import dataaccess.daomodels.GameDao;
 import exception.ResponseException;
 import io.javalin.websocket.*;
+import models.SessionData;
 import websocket.commands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
@@ -14,6 +17,14 @@ import static websocket.messages.ServerMessage.ServerMessageType.*;
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
+    private final GameDao gameDao;
+    private final AuthDao authDao;
+
+    public WebSocketHandler(AuthDao authDao, GameDao gameDao) {
+        this.authDao = authDao;
+        this.gameDao = gameDao;
+    }
+
 
     @Override
     public void handleConnect(WsConnectContext ctx) {
@@ -26,9 +37,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
-                case CONNECT -> enter(command.getCommandType(), ctx.session);
+                case CONNECT -> getAndJoinGame(command.getCommandType(),
+                        command.getAuthToken(),
+                        command.getGameID(),
+                        ctx.session);
                 case MAKE_MOVE -> makeMove();
-                case RESIGN -> exit(command.getCommandType(), ctx.session);
+                case LEAVE -> leaveGame();
+                case RESIGN -> resign(command.getCommandType(), ctx.session);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -40,14 +55,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void enter(UserGameCommand.CommandType type, String token, Session session) throws IOException {
-        connections.add(session);
-//        var msg_string = String.format("%s is in the shop",);
+    private void getAndJoinGame(UserGameCommand.CommandType type,
+                                String token,
+                                Integer gameId,
+                                Session session) throws IOException {
+        connections.add(session, new SessionData(token, gameId, observer));
         var message = new ServerMessage(NOTIFICATION);
         connections.broadcast(session, message);
     }
 
-    private void exit(String visitorName, Session session) throws IOException {
+    private void resign(String visitorName, Session session) throws IOException {
         var msg_string = String.format("%s left the shop", visitorName);
         var ServerMessage = new ServerMessage(NOTIFICATION);
         connections.broadcast(session, ServerMessage);
@@ -55,6 +72,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     public void makeMove() {
+
+    }
+
+    public void leaveGame() {
 
     }
 
