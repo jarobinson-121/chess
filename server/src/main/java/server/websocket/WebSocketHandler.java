@@ -1,13 +1,18 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import dataaccess.daomodels.AuthDao;
 import dataaccess.daomodels.GameDao;
 import exception.ResponseException;
 import io.javalin.websocket.*;
+import models.AuthData;
+import models.GameData;
 import models.SessionData;
 import websocket.commands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -37,15 +42,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
-                case CONNECT -> getAndJoinGame(command.getCommandType(),
-                        command.getAuthToken(),
-                        command.getGameID(),
-                        ctx.session);
+                case CONNECT -> getGame(command.getAuthToken(), command.getGameID(), ctx.session);
                 case MAKE_MOVE -> makeMove();
                 case LEAVE -> leaveGame();
-                case RESIGN -> resign(command.getCommandType(), ctx.session);
+                case RESIGN -> resign(ctx.session);
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -55,19 +57,33 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void getAndJoinGame(UserGameCommand.CommandType type,
-                                String token,
-                                Integer gameId,
-                                Session session) throws IOException {
+    private void getGame(String token, Integer gameId, Session session) throws IOException,
+            DataAccessException {
+
+        GameData game = gameDao.getGame(gameId);
+        AuthData auth = authDao.getAuth(token);
+
+        if (auth == null) {
+            connections.privateMessage(session, new ErrorMessage("Error: Unauthorized"));
+            return;
+        }
+        if (game == null) {
+            connections.privateMessage(session, new ErrorMessage("Error: Unauthorized"));
+            return;
+        }
+
+        boolean observer = (!auth.username().equals(game.whiteUsername()) &&
+                !auth.username().equals(game.blackUsername()));
+
         connections.add(session, new SessionData(token, gameId, observer));
-        var message = new ServerMessage(NOTIFICATION);
-        connections.broadcast(session, message);
+        var message = new LoadGameMessage(game);
+        connections.privateMessage(session, message);
     }
 
-    private void resign(String visitorName, Session session) throws IOException {
-        var msg_string = String.format("%s left the shop", visitorName);
+    private void resign(Session session) throws IOException {
+        var msg_string = String.format("%s left the shop");
         var ServerMessage = new ServerMessage(NOTIFICATION);
-        connections.broadcast(session, ServerMessage);
+        connections.sendToEveryoneElse(session, ServerMessage);
         connections.remove(session);
     }
 
@@ -79,14 +95,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
 
-    public void makeNoise(String petName, String sound) throws ResponseException {
-        try {
-            var msg_string = String.format("%s says %s", petName, sound);
-            var ServerMessage = new ServerMessage(ServerMessage.Type.NOISE, msg_string);
-            connections.broadcast(null, ServerMessage);
-        } catch (Exception ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
-        }
-    }
+//    public void makeNoise(String petName, String sound) throws ResponseException {
+//        try {
+//            var msg_string = String.format("%s says %s", petName, sound);
+//            var ServerMessage = new ServerMessage(ServerMessage.Type.NOISE, msg_string);
+//            connections.sendToEveryoneElse(null, ServerMessage);
+//        } catch (Exception ex) {
+//            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+//        }
+//    }
 
 }
