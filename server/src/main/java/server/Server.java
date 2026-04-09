@@ -54,7 +54,7 @@ public class Server {
         this.joinGameService = new JoinGameService(authDao, gameDao);
         this.listGamesService = new ListGamesService(authDao, gameDao);
         this.clearDBService = new ClearDBService(authDao, gameDao, userDao);
-        this.webSocketHandler = new WebSocketHandler();
+        this.webSocketHandler = new WebSocketHandler(authDao, gameDao);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
 
