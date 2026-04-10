@@ -72,7 +72,8 @@ public class ChessClient implements NotificationHandler {
 
     public void loadNotify(LoadGameMessage loadGameMessage) {
         currentGame = loadGameMessage.getGame();
-        System.out.println(SET_TEXT_COLOR_BLUE + loadGameMessage.getGame());
+        DrawBoard drawBoard = new DrawBoard(playerColor, currentGame);
+        drawBoard.main(playerColor);
         printPrompt();
     }
 
@@ -221,9 +222,7 @@ public class ChessClient implements NotificationHandler {
                 gameID = Integer.parseInt(params[0]);
                 playerColor = params[1];
                 state = PLAYING_GAME;
-
-                DrawBoard drawBoard = new DrawBoard(playerColor, currentGame);
-                drawBoard.main(playerColor);
+                ws.connect(token, lastListedGames.get(localId).gameID());
 
                 return "Successfully joined game: " + gameID;
             }
@@ -238,8 +237,7 @@ public class ChessClient implements NotificationHandler {
             int localId = validNum(params[0]);
             if (lastListedGames.containsKey(localId)) {
                 state = OBSERVER;
-                DrawBoard drawBoard = new DrawBoard("white", currentGame);
-                drawBoard.main("white");
+                ws.connect(token, lastListedGames.get(localId).gameID());
 
                 return "Observing game: " + localId;
             }
