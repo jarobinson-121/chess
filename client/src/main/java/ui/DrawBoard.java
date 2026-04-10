@@ -4,6 +4,7 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import models.GameData;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -13,23 +14,21 @@ import static ui.EscapeSequences.*;
 
 public class DrawBoard {
 
-    // Board dimensions.
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int SQUARE_HEIGHT_IN_CHARS = 3;
     private static final int SQUARE_WIDTH_IN_CHARS = 7;
     private static final int LINE_WIDTH_IN_PADDED_CHARS = 1;
 
     private final String playerColor;
-    private final ChessGame game;
+    private final GameData game;
     private final ChessBoard board;
 
-    // Padded characters.
     private static final String EMPTY = " ";
 
-    public DrawBoard(String playerColor, ChessGame game) {
+    public DrawBoard(String playerColor, GameData game) {
         this.playerColor = playerColor;
         this.game = game;
-        this.board = game.getBoard();
+        this.board = game.game().getBoard();
     }
 
     public void main(String playerColor) {
