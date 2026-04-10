@@ -1,13 +1,16 @@
 package server.websocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.daomodels.AuthDao;
 import dataaccess.daomodels.GameDao;
+import exception.ResponseException;
 import io.javalin.websocket.*;
 import models.AuthData;
 import models.GameData;
 import models.SessionData;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ErrorMessage;
@@ -30,7 +33,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         this.gameDao = gameDao;
     }
 
-
     @Override
     public void handleConnect(WsConnectContext ctx) {
         System.out.println("Websocket connected");
@@ -40,10 +42,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleMessage(WsMessageContext ctx) {
         try {
+            System.out.println("Server received WS message: " + ctx.message());
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
                 case CONNECT -> getGame(command.getAuthToken(), command.getGameID(), ctx.session);
-                case MAKE_MOVE -> makeMove();
+                case MAKE_MOVE -> makeMove(ctx);
                 case LEAVE -> leaveGame();
                 case RESIGN -> resign(ctx.session);
             }
@@ -60,6 +63,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void getGame(String token, Integer gameId, Session session) throws IOException,
             DataAccessException {
 
+        System.out.println("Handling CONNECT command");
         GameData game = gameDao.getGame(gameId);
         AuthData auth = authDao.getAuth(token);
         String color = null;
@@ -90,7 +94,26 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.sendToEveryone(session, notification, gameId);
     }
 
-    public void makeMove() {
+    public void makeMove(WsMessageContext ctx) throws ResponseException {
+        MakeMoveCommand command = new Gson().fromJson(ctx.message(), MakeMoveCommand.class);
+        try {
+            GameData game = gameDao.getGame(command.getGameID());
+            AuthData auth = authDao.getAuth(command.getAuthToken());
+
+            if (!goodAuthGame(ctx.session, auth, game)) {
+                return;
+            }
+            game.game().makeMove(command.getMove());
+            gameDao.updateGame(game);
+
+            LoadGameMessage loadGameMessage = new LoadGameMessage(game);
+
+            connections.sendToEveryone(null, loadGameMessage, game.gameID());
+
+        } catch (Exception ex) {
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
+
 
     }
 
@@ -111,5 +134,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } else {
             return auth.username() + " has joined the game as " + color;
         }
+    }
+
+    private boolean goodAuthGame(Session session, AuthData authData, GameData gameData) throws IOException {
+        if (authData == null) {
+            connections.privateMessage(session, new ErrorMessage("Error: Unauthorized"));
+            return false;
+        }
+        if (gameData == null) {
+            connections.privateMessage(session, new ErrorMessage("Error: Unauthorized"));
+            return false;
+        }
+        return true;
     }
 }
