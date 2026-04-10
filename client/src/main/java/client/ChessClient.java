@@ -2,6 +2,7 @@ package client;
 
 import chess.ChessGame;
 import exception.ResponseException;
+import models.GameData;
 import models.GameSummary;
 import server.ServerFacade;
 import server.State;
@@ -28,12 +29,10 @@ public class ChessClient implements NotificationHandler {
     private State state = SIGNED_OUT;
 
     private String token;
-
     private final Map<Integer, GameSummary> lastListedGames = new HashMap<>();
-
     private int gameID;
-
     private String playerColor;
+    private GameData currentGame;
 
     public ChessClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
@@ -72,6 +71,7 @@ public class ChessClient implements NotificationHandler {
     }
 
     public void loadNotify(LoadGameMessage loadGameMessage) {
+        currentGame = loadGameMessage.getGame();
         System.out.println(SET_TEXT_COLOR_BLUE + loadGameMessage.getGame());
         printPrompt();
     }
@@ -222,7 +222,7 @@ public class ChessClient implements NotificationHandler {
                 playerColor = params[1];
                 state = PLAYING_GAME;
 
-                DrawBoard drawBoard = new DrawBoard(playerColor, new ChessGame());
+                DrawBoard drawBoard = new DrawBoard(playerColor, currentGame);
                 drawBoard.main(playerColor);
 
                 return "Successfully joined game: " + gameID;
@@ -238,7 +238,7 @@ public class ChessClient implements NotificationHandler {
             int localId = validNum(params[0]);
             if (lastListedGames.containsKey(localId)) {
                 state = OBSERVER;
-                DrawBoard drawBoard = new DrawBoard("white", new ChessGame());
+                DrawBoard drawBoard = new DrawBoard("white", currentGame);
                 drawBoard.main("white");
 
                 return "Observing game: " + localId;
