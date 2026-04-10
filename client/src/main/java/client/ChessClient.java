@@ -76,8 +76,9 @@ public class ChessClient implements NotificationHandler {
     public void loadNotify(LoadGameMessage loadGameMessage) {
         System.out.println("LOAD_GAME received");
         currentGame = loadGameMessage.getGame();
-        DrawBoard drawBoard = new DrawBoard(playerColor.toString(), currentGame);
-        drawBoard.main(playerColor.toString());
+        String perspectiveColor = playerColor.toString().toLowerCase();
+        DrawBoard drawBoard = new DrawBoard(perspectiveColor, currentGame);
+        drawBoard.main(perspectiveColor);
         printPrompt();
     }
 
@@ -245,8 +246,8 @@ public class ChessClient implements NotificationHandler {
                 promotionPiece = stringToPieceType(params[2]);
             }
 
-            ws.makeMove(token, new ChessMove(start, end, promotionPiece));
-            return "Move sent.";
+            ws.makeMove(token, new ChessMove(start, end, promotionPiece), gameID);
+            return "";
         }
         throw new ResponseException(ResponseException.Code.BadRequest,
                 "Expected <START POSITION> <END POSITION> (optional) <PROMOTION PIECE>");
