@@ -37,8 +37,8 @@ public class DrawBoard {
         String[] whiteHeaders = {"A", "B", "C", "D", "E", "F", "G", "H"};
         String[] blackHeaders = {"H", "G", "F", "E", "D", "C", "B", "A"};
 
-        String[] whiteBorders = {"1", "2", "3", "4", "5", "6", "7", "8"};
-        String[] blackBorders = {"8", "7", "6", "5", "4", "3", "2", "1"};
+        String[] whiteBorders = {"8", "7", "6", "5", "4", "3", "2", "1"};
+        String[] blackBorders = {"1", "2", "3", "4", "5", "6", "7", "8"};
 
         out.print(ERASE_SCREEN);
 
