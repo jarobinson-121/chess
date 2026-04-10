@@ -18,19 +18,21 @@ public class ConnectionManager {
         connections.remove(session);
     }
 
-    public void sendToEveryoneElse(Session excludeSession, ServerMessage notification) throws IOException {
+    public void sendToEveryone(Session excludeSession,
+                               ServerMessage notification,
+                               Integer gameId) throws IOException {
         String msg = notification.toString();
-        for (Session c : connections) {
-            if (c.isOpen()) {
-                if (!c.equals(excludeSession)) {
-                    c.getRemote().sendString(msg);
+        for (var each : connections.entrySet()) {
+            Session session = each.getKey();
+            SessionData data = each.getValue();
+            Integer id = data.gameId();
+
+            if (id.equals(gameId)) {
+                if (excludeSession != null && !session.equals(excludeSession)) {
+                    session.getRemote().sendString(msg);
                 }
             }
         }
-    }
-
-    public void sendToEveryone() {
-
     }
 
     public void privateMessage(Session userSession, ServerMessage notification) throws IOException {
