@@ -1,6 +1,9 @@
 package client;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import exception.ResponseException;
 import models.GameData;
 import models.GameSummary;
@@ -31,7 +34,7 @@ public class ChessClient implements NotificationHandler {
     private String token;
     private final Map<Integer, GameSummary> lastListedGames = new HashMap<>();
     private int gameID;
-    private String playerColor;
+    private ChessGame.TeamColor playerColor;
     private GameData currentGame;
 
     public ChessClient(String serverUrl) throws ResponseException {
@@ -71,9 +74,10 @@ public class ChessClient implements NotificationHandler {
     }
 
     public void loadNotify(LoadGameMessage loadGameMessage) {
+        System.out.println("LOAD_GAME received");
         currentGame = loadGameMessage.getGame();
-        DrawBoard drawBoard = new DrawBoard(playerColor, currentGame);
-        drawBoard.main(playerColor);
+        DrawBoard drawBoard = new DrawBoard(playerColor.toString(), currentGame);
+        drawBoard.main(playerColor.toString());
         printPrompt();
     }
 
@@ -130,17 +134,17 @@ public class ChessClient implements NotificationHandler {
     public String evalPlayer(String cmd, String... params) {
         try {
             switch (cmd) {
+                case "move":
+                    return makeMove(params);
                 case "exit":
                     state = SIGNED_IN;
                     return "Exited game, returning to menu.\n" + help();
                 default:
-                    help();
+                    return help();
             }
-            ;
         } catch (Exception ex) {
             return ex.getMessage();
         }
-        return null;
     }
 
     public String evalObserver(String cmd, String... params) {
@@ -150,13 +154,11 @@ public class ChessClient implements NotificationHandler {
                     state = SIGNED_IN;
                     return "Exited observation, returning to menu.\n" + help();
                 default:
-                    help();
+                    return help();
             }
-            ;
         } catch (Exception ex) {
             return ex.getMessage();
         }
-        return null;
     }
 
     public String registerUser(String... params) throws ResponseException {
@@ -219,9 +221,10 @@ public class ChessClient implements NotificationHandler {
             int localId = validNum(params[0]);
             if (lastListedGames.containsKey(localId)) {
                 server.joinGame(token, lastListedGames.get(localId).gameID(), params[1]);
-                gameID = Integer.parseInt(params[0]);
-                playerColor = params[1];
+                gameID = lastListedGames.get(localId).gameID();
+                playerColor = stringToColor(params[1]);
                 state = PLAYING_GAME;
+                System.out.println("Sending CONNECT for game " + gameID);
                 ws.connect(token, lastListedGames.get(localId).gameID());
 
                 return "Successfully joined game: " + gameID;
@@ -232,11 +235,29 @@ public class ChessClient implements NotificationHandler {
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <ID> <WHITE | BLACK>");
     }
 
+    public String makeMove(String... params) throws ResponseException {
+        if (params.length >= 2 && params.length <= 3) {
+            ChessPosition start = makePosition(params[0].toLowerCase());
+            ChessPosition end = makePosition(params[1].toLowerCase());
+            ChessPiece.PieceType promotionPiece = null;
+
+            if (params.length == 3) {
+                promotionPiece = stringToPieceType(params[2]);
+            }
+
+            ws.makeMove(token, new ChessMove(start, end, promotionPiece));
+            return "Move sent.";
+        }
+        throw new ResponseException(ResponseException.Code.BadRequest,
+                "Expected <START POSITION> <END POSITION> (optional) <PROMOTION PIECE>");
+    }
+
     public String observeGame(String... params) throws ResponseException {
         if (params.length == 1) {
             int localId = validNum(params[0]);
             if (lastListedGames.containsKey(localId)) {
                 state = OBSERVER;
+                playerColor = ChessGame.TeamColor.WHITE;
                 ws.connect(token, lastListedGames.get(localId).gameID());
 
                 return "Observing game: " + localId;
@@ -276,6 +297,7 @@ public class ChessClient implements NotificationHandler {
                     """;
         } else if (state == PLAYING_GAME) {
             return """
+                    - move <START POSITION> <END POSITION> (optional)<PROMOTION PIECE>
                     - exit
                     - help
                     """;
@@ -293,6 +315,56 @@ public class ChessClient implements NotificationHandler {
         } catch (NumberFormatException e) {
             throw new ResponseException(ResponseException.Code.BadRequest, "ID must be a number.");
         }
+    }
+
+    private ChessPosition makePosition(String combo) throws ResponseException {
+        if (combo.length() != 2) {
+            throw new ResponseException(ResponseException.Code.BadRequest,
+                    "Position must be in form a1-h8");
+        }
+
+        int col = charToInt(combo.charAt(0));
+        int row = combo.charAt(1) - '0';
+
+        if (row < 1 || row > 8) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "Row must be 1-8");
+        }
+
+        return new ChessPosition(row, col);
+    }
+
+    private int charToInt(char letter) throws ResponseException {
+        return switch (letter) {
+            case 'a' -> 1;
+            case 'b' -> 2;
+            case 'c' -> 3;
+            case 'd' -> 4;
+            case 'e' -> 5;
+            case 'f' -> 6;
+            case 'g' -> 7;
+            case 'h' -> 8;
+            default -> throw new ResponseException(ResponseException.Code.BadRequest, "Column must be a-h");
+        };
+    }
+
+    private ChessPiece.PieceType stringToPieceType(String string) throws ResponseException {
+        return switch (string.toLowerCase()) {
+            case "queen" -> ChessPiece.PieceType.QUEEN;
+            case "rook" -> ChessPiece.PieceType.ROOK;
+            case "bishop" -> ChessPiece.PieceType.BISHOP;
+            case "knight" -> ChessPiece.PieceType.KNIGHT;
+            default -> throw new ResponseException(ResponseException.Code.BadRequest,
+                    "Promotion piece must be queen, rook, bishop, or knight");
+        };
+    }
+
+    private ChessGame.TeamColor stringToColor(String color) throws ResponseException {
+        return switch (color.toLowerCase()) {
+            case "white" -> ChessGame.TeamColor.WHITE;
+            case "black" -> ChessGame.TeamColor.BLACK;
+            default -> throw new ResponseException(ResponseException.Code.BadRequest,
+                    "Color must be either white or black");
+        };
     }
 
 }
