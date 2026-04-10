@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.daomodels.AuthDao;
 import dataaccess.daomodels.GameDao;
-import exception.ResponseException;
 import io.javalin.websocket.*;
 import models.AuthData;
 import models.GameData;
@@ -13,6 +12,7 @@ import websocket.commands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -62,47 +62,54 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         GameData game = gameDao.getGame(gameId);
         AuthData auth = authDao.getAuth(token);
+        String color = null;
 
         if (auth == null) {
             connections.privateMessage(session, new ErrorMessage("Error: Unauthorized"));
             return;
         }
         if (game == null) {
-            connections.privateMessage(session, new ErrorMessage("Error: Unauthorized"));
+            connections.privateMessage(session, new ErrorMessage("Error: Invalid Game"));
             return;
         }
 
-        boolean observer = (!auth.username().equals(game.whiteUsername()) &&
-                !auth.username().equals(game.blackUsername()));
+        boolean whitePlayer = (auth.username().equals(game.whiteUsername())) ? true : false;
+        boolean blackPlayer = (auth.username().equals(game.blackUsername())) ? true : false;
+
+        boolean observer = (!whitePlayer && !blackPlayer);
+
+        if (!observer) {
+            color = (whitePlayer) ? "WHITE" : "BLACK";
+        }
 
         connections.add(session, new SessionData(token, gameId, observer));
-        var message = new LoadGameMessage(game);
-        connections.privateMessage(session, message);
-    }
+        LoadGameMessage loadGameMessage = new LoadGameMessage(game);
+        connections.privateMessage(session, loadGameMessage);
 
-    private void resign(Session session) throws IOException {
-        var msg_string = String.format("%s left the shop");
-        var ServerMessage = new ServerMessage(NOTIFICATION);
-        connections.sendToEveryoneElse(session, ServerMessage);
-        connections.remove(session);
+        NotificationMessage notification = new NotificationMessage(notificationTextBuilder(auth, observer, color));
+        connections.sendToEveryone(session, notification, gameId);
     }
 
     public void makeMove() {
 
     }
 
+    private void resign(Session session) throws IOException {
+        var msg_string = String.format("%s left the shop");
+        var ServerMessage = new ServerMessage(NOTIFICATION);
+        connections.sendToEveryone(session, ServerMessage, null);
+        connections.remove(session);
+    }
+
     public void leaveGame() {
 
     }
 
-//    public void makeNoise(String petName, String sound) throws ResponseException {
-//        try {
-//            var msg_string = String.format("%s says %s", petName, sound);
-//            var ServerMessage = new ServerMessage(ServerMessage.Type.NOISE, msg_string);
-//            connections.sendToEveryoneElse(null, ServerMessage);
-//        } catch (Exception ex) {
-//            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
-//        }
-//    }
-
+    private String notificationTextBuilder(AuthData auth, boolean observer, String color) {
+        if (observer == true) {
+            return auth.username() + " is now observing the game.";
+        } else {
+            return auth.username() + " has joined the game as " + color;
+        }
+    }
 }
