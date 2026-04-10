@@ -97,12 +97,24 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void makeMove(WsMessageContext ctx) throws ResponseException {
         MakeMoveCommand command = new Gson().fromJson(ctx.message(), MakeMoveCommand.class);
         try {
+            Session session = ctx.session;
+
             GameData game = gameDao.getGame(command.getGameID());
             AuthData auth = authDao.getAuth(command.getAuthToken());
 
-            if (!goodAuthGame(ctx.session, auth, game)) {
+            if (!goodAuthGame(session, auth, game)) {
                 return;
             }
+
+            ChessGame.TeamColor color = (game.whiteUsername().equals(auth.username())) ? ChessGame.TeamColor.WHITE :
+                    ChessGame.TeamColor.BLACK;
+
+            if (color != game.game().getTeamTurn()) {
+                connections.privateMessage(session, new ErrorMessage("Error: Cool your jets, you can't move " +
+                        "on their turn"));
+                return;
+            }
+
             game.game().makeMove(command.getMove());
             gameDao.updateGame(game);
 
