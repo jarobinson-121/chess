@@ -3,6 +3,7 @@ package websocket;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import jakarta.websocket.*;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -35,9 +36,15 @@ public class WebSocketFacade extends Endpoint {
                             LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
                             notificationHandler.loadNotify(loadGameMessage);
                         }
+                        case ERROR -> {
+                            ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
+                            notificationHandler.errorNotify(errorMessage);
+                        }
+                        case NOTIFICATION -> {
+                            NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
+                            notificationHandler.notify(notification);
+                        }
                     }
-                    NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
-
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
