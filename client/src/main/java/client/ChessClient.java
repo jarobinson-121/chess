@@ -6,8 +6,13 @@ import models.GameSummary;
 import server.ServerFacade;
 import server.State;
 import ui.DrawBoard;
+import websocket.NotificationHandler;
+import websocket.WebSocketFacade;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
-import java.net.http.HttpRequest;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,9 +21,10 @@ import java.util.Scanner;
 import static server.State.*;
 import static ui.EscapeSequences.*;
 
-public class ChessClient {
+public class ChessClient implements NotificationHandler {
 
     private ServerFacade server;
+    private WebSocketFacade ws;
     private State state = SIGNED_OUT;
 
     private String token;
@@ -29,8 +35,9 @@ public class ChessClient {
 
     private String playerColor;
 
-    public ChessClient(String serverUrl) {
+    public ChessClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
+        ws = new WebSocketFacade(serverUrl, this);
     }
 
     private void printPrompt() {
@@ -57,6 +64,21 @@ public class ChessClient {
             }
         }
         System.out.println();
+    }
+
+    public void errorNotify(ErrorMessage errorMessage) {
+        System.out.println(SET_TEXT_COLOR_RED + errorMessage.getErrorMessage());
+        printPrompt();
+    }
+
+    public void loadNotify(LoadGameMessage loadGameMessage) {
+        System.out.println(SET_TEXT_COLOR_BLUE + loadGameMessage.getGame());
+        printPrompt();
+    }
+
+    public void notify(NotificationMessage notificationMessage) {
+        System.out.println(SET_TEXT_COLOR_BLUE + notificationMessage.getMessage());
+        printPrompt();
     }
 
     public String eval(String input) {
