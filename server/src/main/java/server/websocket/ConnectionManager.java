@@ -29,7 +29,7 @@ public class ConnectionManager {
             Integer id = data.gameId();
 
             if (id.equals(gameId)) {
-                if (excludeSession != null && !session.equals(excludeSession)) {
+                if (excludeSession == null || !session.equals(excludeSession)) {
                     session.getRemote().sendString(msg);
                 }
             }
