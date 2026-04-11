@@ -45,7 +45,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case CONNECT -> getGame(command.getAuthToken(), command.getGameID(), ctx.session);
                 case MAKE_MOVE -> makeMove(ctx);
                 case LEAVE -> leaveGame();
-                case RESIGN -> resign(ctx.session);
+                case RESIGN -> resign(command.getAuthToken(), command.getGameID(), ctx.session);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -95,11 +95,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         MakeMoveCommand command = new Gson().fromJson(ctx.message(), MakeMoveCommand.class);
         try {
             Session session = ctx.session;
-
             GameData game = gameDao.getGame(command.getGameID());
             AuthData auth = authDao.getAuth(command.getAuthToken());
 
             if (!goodAuthGame(session, auth, game)) {
+                return;
+            }
+
+            if (game.game().isComplete()) {
+                connections.privateMessage(session, new ErrorMessage("Error: Game complete. No moves allowed."));
                 return;
             }
 
@@ -131,6 +135,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             LoadGameMessage loadGameMessage = new LoadGameMessage(game);
 
             if (inCheckmate(game) || inStalemate(game)) {
+                game.game().setComplete();
+                gameDao.updateGame(game);
                 connections.privateMessage(session, new ErrorMessage("Game complete. No moves allowed"));
                 return;
             }
@@ -142,12 +148,29 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } catch (Exception ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
-
-
     }
 
-    private void resign(Session session) throws IOException {
+    private void resign(String token, Integer gameId, Session session) throws ResponseException {
+        try {
+            AuthData auth = authDao.getAuth(token);
+            GameData game = gameDao.getGame(gameId);
 
+            if (!goodAuthGame(session, auth, game)) {
+                return;
+            }
+
+            ChessGame.TeamColor color = (game.whiteUsername().equals(auth.username())) ? ChessGame.TeamColor.WHITE :
+                    ChessGame.TeamColor.BLACK;
+
+            game.game().setResigned();
+            gameDao.updateGame(game);
+
+            connections.sendToEveryone(null, new NotificationMessage(color.toString().toLowerCase()
+                    + " resigned"), game.gameID());
+
+        } catch (Exception ex) {
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
     }
 
     public void leaveGame() {
