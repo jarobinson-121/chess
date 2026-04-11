@@ -16,11 +16,8 @@ import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
 
 import java.io.IOException;
-
-import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
@@ -110,8 +107,21 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     ChessGame.TeamColor.BLACK;
 
             if (color != game.game().getTeamTurn()) {
-                connections.privateMessage(session, new ErrorMessage("Error: Cool your jets, you can't move " +
-                        "on their turn"));
+                connections.privateMessage(session, new ErrorMessage("Error: You may only move on your turn"));
+                return;
+            }
+
+            var validMoves = game.game().validMoves(command.getMove().getStartPosition());
+            if (validMoves.isEmpty()) {
+                connections.privateMessage(session, new ErrorMessage("No valid moves for this piece."));
+                return;
+            } else if (!validMoves.contains(command.getMove())) {
+                connections.privateMessage(session, new ErrorMessage("Error: Invalid move"));
+                return;
+            }
+
+            if (inCheckmate(game) || inStalemate(game)) {
+                connections.privateMessage(session, new ErrorMessage("Game complete. No moves allowed"));
                 return;
             }
 
@@ -119,6 +129,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             gameDao.updateGame(game);
 
             LoadGameMessage loadGameMessage = new LoadGameMessage(game);
+
+            if (inCheckmate(game) || inStalemate(game)) {
+                connections.privateMessage(session, new ErrorMessage("Game complete. No moves allowed"));
+                return;
+            }
+
+            inCheck(game);
 
             connections.sendToEveryone(null, loadGameMessage, game.gameID());
 
@@ -130,10 +147,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void resign(Session session) throws IOException {
-        var msg_string = String.format("%s left the shop");
-        var ServerMessage = new ServerMessage(NOTIFICATION);
-        connections.sendToEveryone(session, ServerMessage, null);
-        connections.remove(session);
+
     }
 
     public void leaveGame() {
@@ -158,5 +172,44 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return false;
         }
         return true;
+    }
+
+    private boolean inCheck(GameData game) throws IOException {
+        if (game.game().isInCheck(ChessGame.TeamColor.WHITE)) {
+            connections.sendToEveryone(null, new NotificationMessage("White is in check"),
+                    game.gameID());
+            return true;
+        } else if (game.game().isInCheck(ChessGame.TeamColor.BLACK)) {
+            connections.sendToEveryone(null, new NotificationMessage("Black is in check"),
+                    game.gameID());
+            return true;
+        }
+        return false;
+    }
+
+    private boolean inStalemate(GameData game) throws IOException {
+        if (game.game().isInStalemate(ChessGame.TeamColor.WHITE)) {
+            connections.sendToEveryone(null, new NotificationMessage("Stalemate reached"),
+                    game.gameID());
+            return true;
+        } else if (game.game().isInStalemate(ChessGame.TeamColor.BLACK)) {
+            connections.sendToEveryone(null, new NotificationMessage("Stalemate reached"),
+                    game.gameID());
+            return true;
+        }
+        return false;
+    }
+
+    private boolean inCheckmate(GameData game) throws IOException {
+        if (game.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
+            connections.sendToEveryone(null, new NotificationMessage("White is in checkmate"),
+                    game.gameID());
+            return true;
+        } else if (game.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            connections.sendToEveryone(null, new NotificationMessage("Black is in checkmate"),
+                    game.gameID());
+            return true;
+        }
+        return false;
     }
 }
