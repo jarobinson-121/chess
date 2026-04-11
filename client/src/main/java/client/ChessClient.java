@@ -137,6 +137,8 @@ public class ChessClient implements NotificationHandler {
             switch (cmd) {
                 case "move":
                     return makeMove(params);
+                case "resign":
+                    return resign();
                 case "exit":
                     state = SIGNED_IN;
                     return "Exited game, returning to menu.\n" + help();
@@ -267,6 +269,11 @@ public class ChessClient implements NotificationHandler {
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <ID>");
     }
 
+    public String resign() throws ResponseException {
+        ws.resign(token, gameID);
+        return "Resigned from game.";
+    }
+
     public String logout(String... params) throws ResponseException {
         if (params.length == 0) {
             server.logout(token);
@@ -299,6 +306,7 @@ public class ChessClient implements NotificationHandler {
         } else if (state == PLAYING_GAME) {
             return """
                     - move <START POSITION> <END POSITION> (optional)<PROMOTION PIECE>
+                    - resign
                     - exit
                     - help
                     """;
