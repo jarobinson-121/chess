@@ -1,7 +1,6 @@
 package websocket;
 
 import chess.ChessMove;
-import chess.ChessPosition;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import jakarta.websocket.*;
@@ -73,6 +72,15 @@ public class WebSocketFacade extends Endpoint {
     public void makeMove(String token, ChessMove move, Integer gameID) throws ResponseException {
         try {
             var command = new MakeMoveCommand(token, gameID, move);
+            session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
+    }
+
+    public void resign(String token, Integer gameID) throws ResponseException {
+        try {
+            var command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, token, gameID);
             session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
