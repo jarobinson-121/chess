@@ -15,11 +15,15 @@ public class ChessGame {
     private TeamColor teamTurn;
     private ChessBoard gameBoard;
     private ChessBoard testBoard;
+    private boolean gameComplete;
+    private boolean resigned;
 
     public ChessGame() {
         this.teamTurn = TeamColor.WHITE;
         this.gameBoard = new ChessBoard();
         this.testBoard = new ChessBoard();
+        this.gameComplete = false;
+        this.resigned = false;
         gameBoard.resetBoard();
     }
 
@@ -240,6 +244,23 @@ public class ChessGame {
     public void undoMove(ChessPosition start, ChessPiece mover, ChessPosition end, ChessPiece capture) {
         gameBoard.addPiece(start, mover);
         gameBoard.addPiece(end, capture);
+    }
+
+    public boolean isComplete() {
+        return gameComplete;
+    }
+
+    public void setComplete() {
+        gameComplete = true;
+    }
+
+    public boolean resigned() {
+        return resigned;
+    }
+
+    public void setResigned() {
+        gameComplete = true;
+        resigned = true;
     }
 
     @Override
