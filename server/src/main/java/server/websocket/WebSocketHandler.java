@@ -58,7 +58,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void getGame(String token, Integer gameId, Session session) throws IOException,
-            DataAccessException {
+            DataAccessException, ResponseException {
 
         System.out.println("Handling CONNECT command");
         GameData game = gameDao.getGame(gameId);
@@ -123,26 +123,34 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             if (inCheckmate(game) || inStalemate(game)) {
                 connections.privateMessage(session, new ErrorMessage("Game complete. No moves allowed"));
+
                 return;
             }
 
             game.game().makeMove(command.getMove());
             gameDao.updateGame(game);
 
-            LoadGameMessage loadGameMessage = new LoadGameMessage(game);
+
+            String from = command.getMove().getStartPosition().toString();
+            String to = command.getMove().getEndPosition().toString();
+
+            NotificationMessage notificationMessage = new NotificationMessage(auth.username() + " moved from " +
+                    from + " to " + to);
 
             if (inCheckmate(game) || inStalemate(game)) {
                 game.game().setComplete();
                 gameDao.updateGame(game);
+                LoadGameMessage loadGameMessage = new LoadGameMessage(game);
                 connections.sendToEveryone(null, loadGameMessage, game.gameID());
-                connections.sendToEveryone(null, new NotificationMessage("Game complete!"),
-                        game.gameID());
-                return;
+                connections.sendToEveryone(session, notificationMessage, game.gameID());
+            } else {
+                inCheck(game);
+
+                LoadGameMessage loadGameMessage = new LoadGameMessage(game);
+                connections.sendToEveryone(null, loadGameMessage, game.gameID());
+
+                connections.sendToEveryone(session, notificationMessage, game.gameID());
             }
-
-            inCheck(game);
-
-            connections.sendToEveryone(null, loadGameMessage, game.gameID());
 
         } catch (Exception ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
@@ -231,7 +239,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         return true;
     }
 
-    private boolean inCheck(GameData game) throws IOException {
+    private boolean inCheck(GameData game) throws ResponseException {
         if (game.game().isInCheck(ChessGame.TeamColor.WHITE)) {
             connections.sendToEveryone(null, new NotificationMessage("White is in check"),
                     game.gameID());
@@ -244,7 +252,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         return false;
     }
 
-    private boolean inStalemate(GameData game) throws IOException {
+    private boolean inStalemate(GameData game) throws ResponseException {
         if (game.game().isInStalemate(ChessGame.TeamColor.WHITE)) {
             connections.sendToEveryone(null, new NotificationMessage("Stalemate reached"),
                     game.gameID());
@@ -257,13 +265,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         return false;
     }
 
-    private boolean inCheckmate(GameData game) throws IOException {
+    private boolean inCheckmate(GameData game) throws ResponseException {
         if (game.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
-            connections.sendToEveryone(null, new NotificationMessage("White is in checkmate"),
+            connections.sendToEveryone(null, new NotificationMessage("White is in checkmate. " +
+                            "Game complete!"),
                     game.gameID());
             return true;
         } else if (game.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
-            connections.sendToEveryone(null, new NotificationMessage("Black is in checkmate"),
+            connections.sendToEveryone(null, new NotificationMessage("Black is in checkmate. " +
+                            "Game complete!"),
                     game.gameID());
             return true;
         }
