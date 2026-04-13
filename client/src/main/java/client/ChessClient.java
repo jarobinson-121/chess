@@ -74,12 +74,8 @@ public class ChessClient implements NotificationHandler {
     }
 
     public void loadNotify(LoadGameMessage loadGameMessage) {
-        System.out.println("LOAD_GAME received");
         currentGame = loadGameMessage.getGame();
-        String perspectiveColor = playerColor.toString().toLowerCase();
-        DrawBoard drawBoard = new DrawBoard(perspectiveColor, currentGame);
-        drawBoard.main(perspectiveColor);
-        printPrompt();
+        boardDrawHelper(playerColor.toString().toLowerCase());
     }
 
     public void notify(NotificationMessage notificationMessage) {
@@ -137,6 +133,8 @@ public class ChessClient implements NotificationHandler {
             switch (cmd) {
                 case "move":
                     return makeMove(params);
+                case "redraw":
+                    return redraw();
                 case "resign":
                     System.out.print("Are you sure you want to resign? <YES> | <NO>");
                     String confirmation = scanner.nextLine();
@@ -159,9 +157,15 @@ public class ChessClient implements NotificationHandler {
     public String evalObserver(String cmd, String... params) {
         try {
             switch (cmd) {
+                case "redraw":
+                    return redraw();
                 case "exit":
                     state = SIGNED_IN;
                     return "Exited observation, returning to menu.\n" + help();
+                case "leave":
+                    leaveGame();
+                    state = SIGNED_IN;
+                    return "Leaving game, returning to menu.\n" + help();
                 default:
                     return help();
             }
@@ -275,6 +279,13 @@ public class ChessClient implements NotificationHandler {
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <ID>");
     }
 
+    public String redraw() throws ResponseException {
+        if (currentGame != null) {
+            boardDrawHelper(playerColor.toString().toLowerCase());
+        }
+        throw new ResponseException(ResponseException.Code.ServerError, "Error: No game to draw");
+    }
+
     public String leaveGame() throws ResponseException {
         ws.leaveGame(token, gameID);
         return "Left game";
@@ -282,7 +293,7 @@ public class ChessClient implements NotificationHandler {
 
     public String resign() throws ResponseException {
         ws.resign(token, gameID);
-        return "Resigned from game.";
+        return null;
     }
 
     public String logout(String... params) throws ResponseException {
@@ -318,6 +329,7 @@ public class ChessClient implements NotificationHandler {
             return """
                     - move <START POSITION> <END POSITION> (optional)<PROMOTION PIECE>
                     - redraw
+                    - highlight
                     - resign
                     - leave
                     - help
@@ -325,9 +337,16 @@ public class ChessClient implements NotificationHandler {
         }
         return """
                 - redraw
+                - highlight
                 - leave
                 - help
                 """;
+    }
+
+    private void boardDrawHelper(String color) {
+        DrawBoard drawBoard = new DrawBoard(color, currentGame);
+        drawBoard.main(color);
+        printPrompt();
     }
 
     private boolean resignChecker(String input) throws ResponseException {
