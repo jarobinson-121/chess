@@ -1,6 +1,7 @@
 package server.websocket;
 
 import com.google.gson.*;
+import exception.ResponseException;
 import models.SessionData;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
@@ -21,7 +22,7 @@ public class ConnectionManager {
 
     public void sendToEveryone(Session excludeSession,
                                ServerMessage notification,
-                               Integer gameId) throws IOException {
+                               Integer gameId) {
         String msg = new Gson().toJson(notification);
         for (var each : connections.entrySet()) {
             Session session = each.getKey();
@@ -30,7 +31,12 @@ public class ConnectionManager {
 
             if (id.equals(gameId)) {
                 if (excludeSession == null || !session.equals(excludeSession)) {
-                    session.getRemote().sendString(msg);
+                    try {
+                        session.getRemote().sendString(msg);
+                    } catch (IOException ex) {
+                        connections.remove(session);
+                    }
+
                 }
             }
         }
