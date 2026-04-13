@@ -44,7 +44,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             switch (command.getCommandType()) {
                 case CONNECT -> getGame(command.getAuthToken(), command.getGameID(), ctx.session);
                 case MAKE_MOVE -> makeMove(ctx);
-                case LEAVE -> leaveGame();
+                case LEAVE -> leaveGame(command.getAuthToken(), command.getGameID(), ctx.session);
                 case RESIGN -> resign(command.getAuthToken(), command.getGameID(), ctx.session);
             }
         } catch (Exception ex) {
@@ -159,22 +159,32 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 return;
             }
 
-            ChessGame.TeamColor color = (game.whiteUsername().equals(auth.username())) ? ChessGame.TeamColor.WHITE :
-                    ChessGame.TeamColor.BLACK;
-
             game.game().setResigned();
             gameDao.updateGame(game);
 
-            connections.sendToEveryone(null, new NotificationMessage(color.toString().toLowerCase()
-                    + " resigned"), game.gameID());
+            connections.sendToEveryone(session, new NotificationMessage(auth.username() + " resigned"),
+                    game.gameID());
 
         } catch (Exception ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
     }
 
-    public void leaveGame() {
+    public void leaveGame(String token, Integer gameId, Session session) throws ResponseException {
+        try {
+            AuthData auth = authDao.getAuth(token);
+            GameData game = gameDao.getGame(gameId);
 
+            if (!goodAuthGame(session, auth, game)) {
+                return;
+            }
+
+            connections.sendToEveryone(session, new NotificationMessage(auth.username() + " has left the game"),
+                    game.gameID());
+
+        } catch (Exception ex) {
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
     }
 
     private String notificationTextBuilder(AuthData auth, boolean observer, String color) {
