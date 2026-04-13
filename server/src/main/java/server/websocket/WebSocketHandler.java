@@ -137,7 +137,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             if (inCheckmate(game) || inStalemate(game)) {
                 game.game().setComplete();
                 gameDao.updateGame(game);
-                connections.privateMessage(session, new ErrorMessage("Game complete. No moves allowed"));
+                connections.sendToEveryone(null, new NotificationMessage("Game complete!"),
+                        game.gameID());
                 return;
             }
 
@@ -162,7 +163,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             game.game().setResigned();
             gameDao.updateGame(game);
 
-            connections.sendToEveryone(session, new NotificationMessage(auth.username() + " resigned"),
+            connections.sendToEveryone(null, new NotificationMessage(auth.username() + " resigned"),
                     game.gameID());
 
         } catch (Exception ex) {
@@ -179,8 +180,24 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 return;
             }
 
+            GameData newGame = (game.whiteUsername().equals(auth.username())) ?
+                    new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game())
+                    : new GameData(game.gameID(),
+                    game.whiteUsername(),
+                    null,
+                    game.gameName(),
+                    game.game());
+
+            gameDao.updateGame(newGame);
+
+            LoadGameMessage loadGameMessage = new LoadGameMessage(newGame);
+
+            connections.sendToEveryone(session, loadGameMessage, newGame.gameID());
+
             connections.sendToEveryone(session, new NotificationMessage(auth.username() + " has left the game"),
                     game.gameID());
+
+            connections.remove(session);
 
         } catch (Exception ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
