@@ -15,12 +15,8 @@ import websocket.WebSocketFacade;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 import static server.State.*;
 import static ui.EscapeSequences.*;
@@ -135,6 +131,8 @@ public class ChessClient implements NotificationHandler {
                     return makeMove(params);
                 case "redraw":
                     return redraw();
+                case "highlight":
+                    return highlight(params);
                 case "resign":
                     System.out.print("Are you sure you want to resign? <YES> | <NO>");
                     String confirmation = scanner.nextLine();
@@ -159,6 +157,8 @@ public class ChessClient implements NotificationHandler {
             switch (cmd) {
                 case "redraw":
                     return redraw();
+                case "highlight":
+                    return highlight(params);
                 case "exit":
                     state = SIGNED_IN;
                     return "Exited observation, returning to menu.\n" + help();
@@ -279,9 +279,26 @@ public class ChessClient implements NotificationHandler {
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <ID>");
     }
 
+    public String highlight(String... params) throws ResponseException {
+        if (params.length == 1) {
+            ChessPosition selectedPiece = makePosition(params[0]);
+            Collection<ChessMove> wholeMoves = currentGame.game().validMoves(selectedPiece);
+            Collection<ChessPosition> endPositions = new ArrayList<>();
+            for (ChessMove move : wholeMoves) {
+                endPositions.add(move.getEndPosition());
+            }
+            DrawBoard drawBoard = new DrawBoard(playerColor.toString(), currentGame);
+            drawBoard.main(playerColor.toString(), selectedPiece, endPositions);
+            return "Valid moves highlighted";
+        }
+        throw new ResponseException(ResponseException.Code.BadRequest, "Expected <POSITION> \n " +
+                "Positions must be in the form a1 - h8");
+    }
+
     public String redraw() throws ResponseException {
         if (currentGame != null) {
             boardDrawHelper(playerColor.toString().toLowerCase());
+            return "";
         }
         throw new ResponseException(ResponseException.Code.ServerError, "Error: No game to draw");
     }
@@ -293,7 +310,7 @@ public class ChessClient implements NotificationHandler {
 
     public String resign() throws ResponseException {
         ws.resign(token, gameID);
-        return null;
+        return "";
     }
 
     public String logout(String... params) throws ResponseException {
@@ -329,7 +346,7 @@ public class ChessClient implements NotificationHandler {
             return """
                     - move <START POSITION> <END POSITION> (optional)<PROMOTION PIECE>
                     - redraw
-                    - highlight
+                    - highlight <POSITION>
                     - resign
                     - leave
                     - help
@@ -337,7 +354,7 @@ public class ChessClient implements NotificationHandler {
         }
         return """
                 - redraw
-                - highlight
+                - highlight <POSITION>
                 - leave
                 - help
                 """;
@@ -345,7 +362,7 @@ public class ChessClient implements NotificationHandler {
 
     private void boardDrawHelper(String color) {
         DrawBoard drawBoard = new DrawBoard(color, currentGame);
-        drawBoard.main(color);
+        drawBoard.main(color, null, null);
         printPrompt();
     }
 
