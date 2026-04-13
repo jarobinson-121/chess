@@ -39,12 +39,12 @@ public class JoinGameService {
             if (playerColor == null) {
                 throw new ResponseException(ResponseException.Code.BadRequest, "Error: Bad Request");
             } else if (playerColor.toLowerCase().equals("white")) {
-                if (oldGame.whiteUsername() != null) {
+                if (oldGame.whiteUsername() != null && !oldGame.whiteUsername().equals(auth.username())) {
                     throw new ResponseException(ResponseException.Code.AlreadyTakenError, "Error: Player taken");
                 }
                 whiteUsername = auth.username();
             } else if (playerColor.toLowerCase().equals("black")) {
-                if (oldGame.blackUsername() != null) {
+                if (oldGame.blackUsername() != null && !oldGame.blackUsername().equals(auth.username())) {
                     throw new ResponseException(ResponseException.Code.AlreadyTakenError, "Error: Player taken");
                 }
                 blackUsername = auth.username();
