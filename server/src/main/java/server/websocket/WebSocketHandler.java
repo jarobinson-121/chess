@@ -74,13 +74,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return;
         }
 
-        boolean whitePlayer = (auth.username().equals(game.whiteUsername())) ? true : false;
-        boolean blackPlayer = (auth.username().equals(game.blackUsername())) ? true : false;
-
-        boolean observer = (!whitePlayer && !blackPlayer);
+        boolean observer = observerCheck(auth, game);
 
         if (!observer) {
-            color = (whitePlayer) ? "WHITE" : "BLACK";
+            color = (auth.username().equals(game.whiteUsername())) ? "WHITE" : "BLACK";
         }
 
         connections.add(session, new SessionData(token, gameId, observer));
@@ -137,6 +134,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             if (inCheckmate(game) || inStalemate(game)) {
                 game.game().setComplete();
                 gameDao.updateGame(game);
+                connections.sendToEveryone(null, loadGameMessage, game.gameID());
                 connections.sendToEveryone(null, new NotificationMessage("Game complete!"),
                         game.gameID());
                 return;
@@ -180,19 +178,21 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 return;
             }
 
-            GameData newGame = (game.whiteUsername().equals(auth.username())) ?
-                    new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game())
-                    : new GameData(game.gameID(),
-                    game.whiteUsername(),
-                    null,
-                    game.gameName(),
-                    game.game());
+            if (!observerCheck(auth, game)) {
+                GameData newGame = (game.whiteUsername().equals(auth.username())) ?
+                        new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game())
+                        : new GameData(game.gameID(),
+                        game.whiteUsername(),
+                        null,
+                        game.gameName(),
+                        game.game());
 
-            gameDao.updateGame(newGame);
+                gameDao.updateGame(newGame);
 
-            LoadGameMessage loadGameMessage = new LoadGameMessage(newGame);
+                LoadGameMessage loadGameMessage = new LoadGameMessage(newGame);
 
-            connections.sendToEveryone(session, loadGameMessage, newGame.gameID());
+                connections.sendToEveryone(session, loadGameMessage, newGame.gameID());
+            }
 
             connections.sendToEveryone(session, new NotificationMessage(auth.username() + " has left the game"),
                     game.gameID());
@@ -210,6 +210,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } else {
             return auth.username() + " has joined the game as " + color;
         }
+    }
+
+    private boolean observerCheck(AuthData auth, GameData game) {
+        boolean whitePlayer = (auth.username().equals(game.whiteUsername())) ? true : false;
+        boolean blackPlayer = (auth.username().equals(game.blackUsername())) ? true : false;
+
+        return (!whitePlayer && !blackPlayer);
     }
 
     private boolean goodAuthGame(Session session, AuthData authData, GameData gameData) throws IOException {
