@@ -1,13 +1,11 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import models.GameData;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Random;
 
 import static ui.EscapeSequences.*;
@@ -31,7 +29,7 @@ public class DrawBoard {
         this.board = game.game().getBoard();
     }
 
-    public void main(String playerColor) {
+    public void main(String playerColor, ChessPosition selectedPiece, Collection<ChessPosition> endPositions) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         String[] whiteHeaders = {"A", "B", "C", "D", "E", "F", "G", "H"};
@@ -47,7 +45,7 @@ public class DrawBoard {
 
         drawHeaders(out, headers);
 
-        drawChessBoard(out, columns, playerColor, board);
+        drawChessBoard(out, columns, playerColor, board, selectedPiece, endPositions);
 
         drawHeaders(out, headers);
 
@@ -93,11 +91,12 @@ public class DrawBoard {
         setBlack(out);
     }
 
-    private static void drawChessBoard(PrintStream out, String[] columns, String playerColor, ChessBoard board) {
+    private static void drawChessBoard(PrintStream out, String[] columns, String playerColor, ChessBoard board,
+                                       ChessPosition selectedPiece, Collection<ChessPosition> endPositions) {
 
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
 
-            drawRowOfSquares(out, playerColor, columns, boardRow, board);
+            drawRowOfSquares(out, playerColor, columns, boardRow, board, selectedPiece, endPositions);
 
             if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
                 setBlack(out);
@@ -109,7 +108,9 @@ public class DrawBoard {
                                          String color,
                                          String[] columns,
                                          int boardRow,
-                                         ChessBoard board) {
+                                         ChessBoard board,
+                                         ChessPosition selectedPiece,
+                                         Collection<ChessPosition> endPositions) {
 
         for (int squareRow = 0; squareRow < SQUARE_HEIGHT_IN_CHARS; ++squareRow) {
             boolean printSymbol = (squareRow == SQUARE_HEIGHT_IN_CHARS / 2) ? true : false;
@@ -118,21 +119,17 @@ public class DrawBoard {
 
             out.print(SET_BG_COLOR_BLACK);
             for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
-                if ((boardRow + boardCol) % 2 == 0) {
-                    setLightGray(out);
-                } else {
-                    setDarkGray(out);
-                }
 
+                int posRow = (color.equals("white")) ? 8 - boardRow : boardRow + 1;
+                int posCol = (color.equals("white")) ? boardCol + 1 : 8 - boardCol;
+
+                ChessPosition pos = new ChessPosition(posRow, posCol);
+
+                setBackground(boardRow, boardCol, selectedPiece, pos, out, endPositions);
 
                 if (printSymbol) {
                     int prefixLength = SQUARE_WIDTH_IN_CHARS / 2;
                     int suffixLength = SQUARE_WIDTH_IN_CHARS - prefixLength - 1;
-
-                    int posRow = (color.equals("white")) ? 8 - boardRow : boardRow + 1;
-                    int posCol = (color.equals("white")) ? boardCol + 1 : 8 - boardCol;
-
-                    ChessPosition pos = new ChessPosition(posRow, posCol);
 
                     out.print(EMPTY.repeat(prefixLength));
                     printPiece(out, getPiece(out, color, pos, board), color);
@@ -194,6 +191,34 @@ public class DrawBoard {
         };
     }
 
+    private static void setBackground(int boardRow,
+                                      int boardCol,
+                                      ChessPosition selectedPiece,
+                                      ChessPosition pos,
+                                      PrintStream out,
+                                      Collection<ChessPosition> endPositions
+    ) {
+        if (selectedPiece == null) {
+            return;
+        }
+
+        if (selectedPiece.equals(pos)) {
+            setYellow(out);
+        } else if (endPositions.contains(pos)) {
+            if ((boardRow + boardCol) % 2 == 0) {
+                setGreen(out);
+            } else {
+                setDarkGreen(out);
+            }
+        } else {
+            if ((boardRow + boardCol) % 2 == 0) {
+                setLightGray(out);
+            } else {
+                setDarkGray(out);
+            }
+        }
+    }
+
     private static void setWhite(PrintStream out) {
         out.print(SET_BG_COLOR_WHITE);
         out.print(SET_TEXT_COLOR_WHITE);
@@ -211,6 +236,21 @@ public class DrawBoard {
 
     private static void setDarkGray(PrintStream out) {
         out.print(SET_BG_COLOR_DARK_GREY);
+        out.print(SET_TEXT_COLOR_WHITE);
+    }
+
+    private static void setYellow(PrintStream out) {
+        out.print(SET_BG_COLOR_YELLOW);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private static void setGreen(PrintStream out) {
+        out.print(SET_BG_COLOR_GREEN);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private static void setDarkGreen(PrintStream out) {
+        out.print(SET_BG_COLOR_DARK_GREEN);
         out.print(SET_TEXT_COLOR_WHITE);
     }
 
