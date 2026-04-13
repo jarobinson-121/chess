@@ -36,6 +36,7 @@ public class ChessClient implements NotificationHandler {
     private int gameID;
     private ChessGame.TeamColor playerColor;
     private GameData currentGame;
+    Scanner scanner = new Scanner(System.in);
 
     public ChessClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
@@ -51,7 +52,6 @@ public class ChessClient implements NotificationHandler {
         System.out.print(help());
         System.out.print(SET_TEXT_COLOR_BLUE);
 
-        Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
             printPrompt();
@@ -138,10 +138,15 @@ public class ChessClient implements NotificationHandler {
                 case "move":
                     return makeMove(params);
                 case "resign":
-                    return resign();
-                case "exit":
+                    System.out.print("Are you sure you want to resign? <YES> | <NO>");
+                    String confirmation = scanner.nextLine();
+                    if (resignChecker(confirmation)) {
+                        return resign();
+                    }
+                    return help();
+                case "leave":
                     state = SIGNED_IN;
-                    return "Exited game, returning to menu.\n" + help();
+                    return "Leaving game, returning to menu.\n" + help();
                 default:
                     return help();
             }
@@ -269,6 +274,10 @@ public class ChessClient implements NotificationHandler {
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <ID>");
     }
 
+    public String leaveGame() throws ResponseException {
+
+    }
+
     public String resign() throws ResponseException {
         ws.resign(token, gameID);
         return "Resigned from game.";
@@ -315,6 +324,16 @@ public class ChessClient implements NotificationHandler {
                 - exit
                 - help
                 """;
+    }
+
+    private boolean resignChecker(String input) throws ResponseException {
+        input = input.toLowerCase();
+        if (input.equals("yes")) {
+            return true;
+        } else if (input.equals("no")) {
+            return false;
+        }
+        throw new ResponseException(ResponseException.Code.BadRequest, "Expected <YES> | <NO>");
     }
 
     private int validNum(String param) throws ResponseException {
