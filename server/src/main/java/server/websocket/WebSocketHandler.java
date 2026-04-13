@@ -172,6 +172,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 return;
             }
 
+            if (game.game().resigned()) {
+                connections.privateMessage(session, new ErrorMessage("You have already resigned"));
+                return;
+            }
+
             game.game().setResigned();
             gameDao.updateGame(game);
 
@@ -202,10 +207,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                         game.game());
 
                 gameDao.updateGame(newGame);
-
-                LoadGameMessage loadGameMessage = new LoadGameMessage(newGame);
-
-                connections.sendToEveryone(session, loadGameMessage, newGame.gameID());
             }
 
             connections.sendToEveryone(session, new NotificationMessage(auth.username() + " has left the game"),
