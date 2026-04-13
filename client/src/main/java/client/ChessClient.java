@@ -145,6 +145,7 @@ public class ChessClient implements NotificationHandler {
                     }
                     return help();
                 case "leave":
+                    leaveGame();
                     state = SIGNED_IN;
                     return "Leaving game, returning to menu.\n" + help();
                 default:
@@ -275,7 +276,8 @@ public class ChessClient implements NotificationHandler {
     }
 
     public String leaveGame() throws ResponseException {
-
+        ws.leaveGame(token, gameID);
+        return "Left game";
     }
 
     public String resign() throws ResponseException {
@@ -315,13 +317,15 @@ public class ChessClient implements NotificationHandler {
         } else if (state == PLAYING_GAME) {
             return """
                     - move <START POSITION> <END POSITION> (optional)<PROMOTION PIECE>
+                    - redraw
                     - resign
-                    - exit
+                    - leave
                     - help
                     """;
         }
         return """
-                - exit
+                - redraw
+                - leave
                 - help
                 """;
     }
