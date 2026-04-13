@@ -166,6 +166,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 return;
             }
 
+            if (observerCheck(auth, game)) {
+                connections.privateMessage(session, new ErrorMessage("Observers can't resign. Use leave to " +
+                        "exit the game"));
+                return;
+            }
+
             game.game().setResigned();
             gameDao.updateGame(game);
 
