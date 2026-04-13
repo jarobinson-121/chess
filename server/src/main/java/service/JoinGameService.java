@@ -30,7 +30,10 @@ public class JoinGameService {
 
             String whiteUsername = oldGame.whiteUsername();
             String blackUsername = oldGame.blackUsername();
-            if (blackUsername != null && whiteUsername != null) {
+            if (blackUsername != null &&
+                    blackUsername != auth.username() &&
+                    whiteUsername != null &&
+                    whiteUsername != auth.username()) {
                 throw new ResponseException(ResponseException.Code.AlreadyTakenError, "Error: Unavailable");
             }
             if (playerColor == null) {
