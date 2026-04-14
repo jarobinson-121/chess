@@ -199,7 +199,7 @@ public class ChessClient implements NotificationHandler {
             var response = server.createGame(token, params);
             lastListedGames.put(lastListedGames.size() + 1,
                     new GameSummary(response.gameID(), null, null, null));
-            return String.format("Successfully created game: %d", response.gameID());
+            return String.format("Successfully created game: %d", lastListedGames.size());
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <NAME>");
     }
@@ -258,7 +258,7 @@ public class ChessClient implements NotificationHandler {
                 promotionPiece = stringToPieceType(params[2]);
             }
 
-            ws.makeMove(token, new ChessMove(start, end, promotionPiece), gameID);
+            ws.makeMove(token, new ChessMove(start, end, promotionPiece), gameID, params[0], params[1]);
             return "";
         }
         throw new ResponseException(ResponseException.Code.BadRequest,
@@ -269,9 +269,10 @@ public class ChessClient implements NotificationHandler {
         if (params.length == 1) {
             int localId = validNum(params[0]);
             if (lastListedGames.containsKey(localId)) {
+                gameID = lastListedGames.get(localId).gameID();
                 state = OBSERVER;
                 playerColor = ChessGame.TeamColor.WHITE;
-                ws.connect(token, lastListedGames.get(localId).gameID());
+                ws.connect(token, gameID);
 
                 return "Observing game: " + localId;
             }
@@ -287,8 +288,8 @@ public class ChessClient implements NotificationHandler {
             for (ChessMove move : wholeMoves) {
                 endPositions.add(move.getEndPosition());
             }
-            DrawBoard drawBoard = new DrawBoard(playerColor.toString(), currentGame);
-            drawBoard.main(playerColor.toString(), selectedPiece, endPositions);
+            DrawBoard drawBoard = new DrawBoard(playerColor.toString().toLowerCase(), currentGame);
+            drawBoard.main(selectedPiece, endPositions);
             return "Valid moves highlighted";
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected <POSITION> \n " +
@@ -362,7 +363,7 @@ public class ChessClient implements NotificationHandler {
 
     private void boardDrawHelper(String color) {
         DrawBoard drawBoard = new DrawBoard(color, currentGame);
-        drawBoard.main(color, null, null);
+        drawBoard.main(null, null);
         printPrompt();
     }
 
