@@ -10,6 +10,7 @@ import io.javalin.websocket.*;
 import models.AuthData;
 import models.GameData;
 import models.SessionData;
+import org.eclipse.jetty.util.IO;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.Session;
@@ -37,7 +38,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @Override
-    public void handleMessage(WsMessageContext ctx) {
+    public void handleMessage(WsMessageContext ctx) throws IOException {
         try {
             System.out.println("Server received WS message: " + ctx.message());
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
@@ -47,6 +48,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case LEAVE -> leaveGame(command.getAuthToken(), command.getGameID(), ctx.session);
                 case RESIGN -> resign(command.getAuthToken(), command.getGameID(), ctx.session);
             }
+
+        } catch (ResponseException ex) {
+            connections.privateMessage(ctx.session, new ErrorMessage(ex.getMessage()));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -131,8 +135,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             gameDao.updateGame(game);
 
 
-            String from = command.getMove().getStartPosition().toString();
-            String to = command.getMove().getEndPosition().toString();
+            String from = command.getFrom();
+            String to = command.getTo();
 
             NotificationMessage notificationMessage = new NotificationMessage(auth.username() + " moved from " +
                     from + " to " + to);
@@ -152,6 +156,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 connections.sendToEveryone(session, notificationMessage, game.gameID());
             }
 
+        } catch (ResponseException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
