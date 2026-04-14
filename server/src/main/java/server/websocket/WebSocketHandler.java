@@ -59,6 +59,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleClose(WsCloseContext ctx) {
         System.out.println("Websocket closed");
+        connections.remove(ctx.session);
     }
 
     private void getGame(String token, Integer gameId, Session session) throws IOException,
@@ -108,7 +109,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 return;
             }
 
-            ChessGame.TeamColor color = (game.whiteUsername().equals(auth.username())) ? ChessGame.TeamColor.WHITE :
+            ChessGame.TeamColor color = (auth.username().equals(game.whiteUsername())) ? ChessGame.TeamColor.WHITE :
                     ChessGame.TeamColor.BLACK;
 
             if (color != game.game().getTeamTurn()) {
