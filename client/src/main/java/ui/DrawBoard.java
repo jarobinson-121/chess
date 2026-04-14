@@ -29,7 +29,7 @@ public class DrawBoard {
         this.board = game.game().getBoard();
     }
 
-    public void main(String playerColor, ChessPosition selectedPiece, Collection<ChessPosition> endPositions) {
+    public void main(ChessPosition selectedPiece, Collection<ChessPosition> endPositions) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         String[] whiteHeaders = {"A", "B", "C", "D", "E", "F", "G", "H"};
@@ -39,6 +39,7 @@ public class DrawBoard {
         String[] blackBorders = {"1", "2", "3", "4", "5", "6", "7", "8"};
 
         out.print(ERASE_SCREEN);
+        out.println(EMPTY);
 
         String[] headers = (playerColor.equals("white")) ? whiteHeaders : blackHeaders;
         String[] columns = (playerColor.equals("white")) ? whiteBorders : blackBorders;
@@ -198,13 +199,9 @@ public class DrawBoard {
                                       PrintStream out,
                                       Collection<ChessPosition> endPositions
     ) {
-        if (selectedPiece == null) {
-            return;
-        }
-
-        if (selectedPiece.equals(pos)) {
+        if (selectedPiece != null && selectedPiece.equals(pos)) {
             setYellow(out);
-        } else if (endPositions.contains(pos)) {
+        } else if (selectedPiece != null && endPositions.contains(pos)) {
             if ((boardRow + boardCol) % 2 == 0) {
                 setGreen(out);
             } else {
